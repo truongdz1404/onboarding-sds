@@ -54,12 +54,12 @@ export function DocumentChecklist() {
       {/* Progress */}
       <div>
         <div className="mb-2 flex items-center justify-between text-sm font-semibold">
-          <span>{done}/{DOCS.length} tài liệu đã chuẩn bị</span>
+          <span className="text-text-dark">{done}/{DOCS.length} tài liệu đã chuẩn bị</span>
           <span className="tabular-nums text-primary">{Math.round(pct)}%</span>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-md bg-muted">
+        <div className="h-3 w-full overflow-hidden rounded-full bg-surface-orange-strong">
           <div
-            className="h-full rounded-md bg-primary transition-all duration-300"
+            className="h-full rounded-full bg-primary transition-all duration-300"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -74,22 +74,22 @@ export function DocumentChecklist() {
               <button
                 type="button"
                 onClick={() => toggle(i)}
-                className="group flex w-full items-center gap-4 rounded-lg bg-muted px-5 py-4 text-left transition-all duration-200 hover:scale-[1.01]"
+                className="group flex w-full items-center gap-4 rounded-xl bg-white border border-border shadow-sm px-5 py-4 text-left transition-shadow duration-200 hover:shadow-md"
                 aria-pressed={isChecked}
               >
                 <span
                   className={cn(
                     'flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors',
                     isChecked
-                      ? 'border-green-500 bg-green-500 text-white'
-                      : 'border-border bg-background',
+                      ? 'border-primary bg-primary text-white'
+                      : 'border-primary/30 bg-white',
                   )}
                 >
                   {isChecked ? <Check size={16} strokeWidth={2.5} /> : null}
                 </span>
                 <span
                   className={cn(
-                    'font-medium transition-colors',
+                    'font-medium transition-colors text-text-dark',
                     isChecked && 'text-muted-foreground line-through',
                   )}
                 >

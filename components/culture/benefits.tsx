@@ -33,15 +33,16 @@ export function Benefits() {
       {benefits.map((b, i) => (
         <motion.div
           key={b.title}
-          className="group flex items-start gap-4 rounded-lg bg-muted p-5 transition-all duration-200 hover:scale-[1.02] hover:bg-[#ebedf0]"
+          className="group flex items-start gap-4 rounded-xl bg-white border border-border shadow-sm p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.3, delay: i * 0.04 }}
+          whileHover={{ y: -4, transition: { duration: 0.2 } }}
         >
           <IconBox icon={b.icon} size="sm" iconSize={22} />
           <div>
-            <h3 className="font-bold leading-tight">{b.title}</h3>
+            <h3 className="font-bold leading-tight text-text-dark">{b.title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{b.desc}</p>
           </div>
         </motion.div>

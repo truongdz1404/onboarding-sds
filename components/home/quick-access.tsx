@@ -44,7 +44,7 @@ const card = {
 
 export function QuickAccess() {
   return (
-    <section className="bg-background py-24">
+    <section className="bg-surface-white py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="Bắt đầu từ đâu?"
@@ -60,13 +60,17 @@ export function QuickAccess() {
           viewport={{ once: true, margin: '-60px' }}
         >
           {items.map((item) => (
-            <motion.div key={item.title} variants={card}>
+            <motion.div
+              key={item.title}
+              variants={card}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            >
               <Link
                 href={item.href}
-                className="group flex h-full flex-col gap-4 rounded-lg bg-muted p-6 transition-all duration-200 hover:scale-[1.02] hover:bg-[#ebedf0]"
+                className="group flex h-full flex-col gap-4 rounded-xl bg-white border border-border shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
               >
                 <IconBox icon={item.icon} />
-                <h3 className="text-xl font-bold tracking-tight">
+                <h3 className="text-xl font-bold tracking-tight text-text-dark">
                   {item.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed flex-1">

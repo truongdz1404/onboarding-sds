@@ -1,6 +1,7 @@
 'use client'
 
-import { Target, Eye, Heart, ThumbsUp, ShieldCheck, Ear } from 'lucide-react'
+import { Target, Eye, ThumbsUp, ShieldCheck, Ear } from 'lucide-react'
+import { motion } from 'motion/react'
 import { FadeUp } from '@/components/shared/fade-up'
 import { SectionHeader } from '@/components/shared/section-header'
 import { IconBox } from '@/components/shared/icon-box'
@@ -13,7 +14,7 @@ const values = [
 
 export function MissionVision() {
   return (
-    <section className="bg-muted py-24">
+    <section className="bg-surface-white py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="Kim chỉ nam"
@@ -21,38 +22,50 @@ export function MissionVision() {
         />
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {/* Mission */}
+          {/* Mission — cam đậm */}
           <FadeUp>
-            <article className="flex h-full flex-col gap-5 rounded-lg bg-secondary p-8 text-white">
-              <span className="eyebrow w-fit rounded-md bg-primary px-3 py-1.5 text-white">
+            <motion.article
+              className="flex h-full flex-col gap-5 rounded-xl bg-white border-2 border-primary p-8"
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            >
+              <span className="eyebrow w-fit rounded-md bg-primary/10 px-3 py-1.5 text-primary">
                 Sứ mệnh
               </span>
-              <IconBox icon={Target} variant="dark" />
-              <p className="text-2xl font-bold leading-snug tracking-tight">
-                Nâng tầm quản trị doanh nghiệp thông qua IT đơn giản hóa
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10">
+                <Target size={28} className="text-primary" strokeWidth={2} />
+              </div>
+              <p className="text-2xl font-extrabold leading-snug text-text-dark" style={{ letterSpacing: '-0.02em' }}>
+                Nâng tầm quản trị doanh nghiệp thông qua{' '}
+                <span className="gradient-text">IT đơn giản hóa</span>
               </p>
-            </article>
+            </motion.article>
           </FadeUp>
 
-          {/* Vision */}
+          {/* Vision — cam nhạt */}
           <FadeUp delay={0.08}>
-            <article className="flex h-full flex-col gap-5 rounded-lg bg-primary p-8 text-white">
-              <span className="eyebrow w-fit rounded-md bg-white/20 px-3 py-1.5 text-white">
+            <motion.article
+              className="flex h-full flex-col gap-5 rounded-xl bg-white border border-border shadow-sm p-8"
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            >
+              <span className="eyebrow w-fit rounded-md bg-primary/12 px-3 py-1.5 text-primary">
                 Tầm nhìn
               </span>
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white/15">
-                <Eye size={28} className="text-white" strokeWidth={2} />
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10">
+                <Eye size={28} className="text-primary" strokeWidth={2} />
               </div>
-              <p className="text-2xl font-bold leading-snug tracking-tight">
+              <p className="text-2xl font-bold leading-snug tracking-tight text-text-dark">
                 Top IT Vietnam 2030 · Vươn tầm thế giới 2040
               </p>
-            </article>
+            </motion.article>
           </FadeUp>
 
-          {/* Values */}
+          {/* Values — trắng viền cam */}
           <FadeUp delay={0.16}>
-            <article className="flex h-full flex-col gap-5 rounded-lg border-l-4 border-primary bg-background p-8">
-              <span className="eyebrow w-fit rounded-md bg-primary px-3 py-1.5 text-white">
+            <motion.article
+              className="flex h-full flex-col gap-5 rounded-xl border-l-4 border-primary bg-surface-white p-8 shadow-sm"
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            >
+              <span className="eyebrow w-fit rounded-md bg-primary/10 px-3 py-1.5 text-primary">
                 Giá trị cốt lõi
               </span>
               <div className="flex flex-col gap-4">
@@ -60,15 +73,13 @@ export function MissionVision() {
                   <div key={v.label} className="group flex items-center gap-4">
                     <IconBox icon={v.icon} variant="muted" size="sm" iconSize={22} />
                     <div>
-                      <div className="font-bold">{v.label}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {v.desc}
-                      </div>
+                      <div className="font-bold text-text-dark">{v.label}</div>
+                      <div className="text-sm text-muted-foreground">{v.desc}</div>
                     </div>
                   </div>
                 ))}
               </div>
-            </article>
+            </motion.article>
           </FadeUp>
         </div>
       </div>

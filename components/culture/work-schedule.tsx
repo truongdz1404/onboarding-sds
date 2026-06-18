@@ -2,7 +2,6 @@
 
 import { AlertTriangle } from 'lucide-react'
 
-// 8:00 -> 18:00 window = 10 hours
 const blocks = [
   { label: 'Sáng', from: '8:00', to: '12:00', span: 4, type: 'work' },
   { label: 'Nghỉ trưa', from: '12:00', to: '13:30', span: 1.5, type: 'break' },
@@ -11,9 +10,9 @@ const blocks = [
 ]
 
 const pills = [
-  { label: 'Thứ 2–6 bắt buộc', cls: 'bg-secondary text-white' },
-  { label: 'Thứ 7 cách tuần', cls: 'bg-primary text-white' },
-  { label: 'Chấm công Wifi + GPS', cls: 'bg-muted text-foreground' },
+  { label: 'Thứ 2–6 bắt buộc', cls: 'bg-primary text-white' },
+  { label: 'Thứ 7 cách tuần', cls: 'bg-surface-orange-strong text-primary border border-primary/20' },
+  { label: 'Chấm công Wifi + GPS', cls: 'bg-white text-foreground border border-border' },
 ]
 
 export function WorkSchedule() {
@@ -23,16 +22,16 @@ export function WorkSchedule() {
     <div className="flex flex-col gap-6">
       {/* Bar */}
       <div>
-        <div className="flex h-16 w-full overflow-hidden rounded-md">
+        <div className="flex h-16 w-full overflow-hidden rounded-xl">
           {blocks.map((b, i) => (
             <div
               key={i}
               style={{ width: `${(b.span / total) * 100}%` }}
               className={
                 b.type === 'work'
-                  ? 'flex items-center justify-center bg-primary text-sm font-semibold text-white'
+                  ? 'flex items-center justify-center bg-zinc-700 text-sm font-semibold text-white'
                   : b.type === 'break'
-                    ? 'flex items-center justify-center bg-muted text-xs font-medium text-muted-foreground'
+                    ? 'flex items-center justify-center bg-surface-orange-strong text-xs font-medium text-primary'
                     : 'bg-border'
               }
             >
@@ -53,7 +52,7 @@ export function WorkSchedule() {
         {pills.map((p) => (
           <span
             key={p.label}
-            className={`rounded-md px-4 py-2 text-sm font-semibold ${p.cls}`}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold ${p.cls}`}
           >
             {p.label}
           </span>
@@ -61,10 +60,10 @@ export function WorkSchedule() {
       </div>
 
       {/* Penalty callout */}
-      <div className="flex gap-4 rounded-lg border-l-4 border-primary bg-primary/5 p-5">
+      <div className="flex gap-4 rounded-xl border-l-4 border-primary bg-white p-5 shadow-sm">
         <AlertTriangle size={22} className="mt-0.5 shrink-0 text-primary" />
         <div>
-          <p className="font-semibold">Quy định đi muộn</p>
+          <p className="font-semibold text-text-dark">Quy định đi muộn</p>
           <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
             Muộn ≤ 60 phút → tính nhân đôi. Muộn {'>'} 60 phút → tính theo thực
             tế. Tối đa 3 lần giải trình mỗi tháng.

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Heart,
   MessageSquare,
-  Handshake,
   Clock,
   Fingerprint,
   Gift,
@@ -62,10 +61,11 @@ const sections: Section[] = [
     title: 'Quy định chấm công',
     desc: 'Chấm công qua Wifi và GPS trên ứng dụng EasyHRM, minh bạch và chính xác.',
     content: (
-      <div className="rounded-lg bg-muted p-6 leading-relaxed text-muted-foreground">
-        Nhân viên chấm công vào/ra qua ứng dụng <strong className="text-foreground">EasyHRM</strong> bằng
-        kết nối Wifi nội bộ kết hợp định vị GPS. Mọi điều chỉnh cần được quản lý
-        trực tiếp phê duyệt trên hệ thống.
+      <div className="rounded-xl bg-white border border-border p-6 leading-relaxed text-muted-foreground shadow-sm">
+        Nhân viên chấm công vào/ra qua ứng dụng{' '}
+        <strong className="text-foreground">EasyHRM</strong> bằng kết nối Wifi nội
+        bộ kết hợp định vị GPS. Mọi điều chỉnh cần được quản lý trực tiếp phê duyệt
+        trên hệ thống.
       </div>
     ),
   },
@@ -123,16 +123,18 @@ export default function CulturePage() {
   return (
     <>
       {/* Page hero */}
-      <section className="bg-secondary pt-28 pb-16 text-white">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <span className="eyebrow inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-1.5 text-accent">
-            <span className="h-1.5 w-1.5 rounded-full bg-current" />
-            Văn hóa & Nội quy
-          </span>
-          <h1 className="mt-5 text-balance text-4xl font-extrabold tracking-tight md:text-6xl">
-            Cách chúng ta làm việc <span className="text-accent">cùng nhau</span>
+      <section className="relative overflow-hidden bg-white pt-28 pb-16 border-b border-border">
+        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-primary/8 blur-[100px]" />
+        <div className="pointer-events-none absolute top-10 right-0 h-72 w-72 rounded-full bg-amber-400/8 blur-[80px]" />
+        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="inline-flex items-center gap-3 mb-6">
+            <span className="block h-px w-8 bg-primary shrink-0" />
+            <span className="eyebrow text-primary">Văn hóa & Nội quy</span>
+          </div>
+          <h1 className="text-balance font-extrabold text-5xl md:text-6xl text-text-dark" style={{ letterSpacing: '-0.04em', lineHeight: '0.9' }}>
+            Cách chúng ta làm việc <span className="gradient-text">cùng nhau</span>
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/70">
+          <p className="mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground">
             Tất cả nguyên tắc, quy định và phúc lợi bạn cần nắm khi gia nhập gia
             đình SoftDreams.
           </p>
@@ -144,7 +146,7 @@ export default function CulturePage() {
         <div className="flex flex-col gap-10 lg:flex-row lg:gap-12">
           {/* Sidebar */}
           <aside className="lg:w-60 lg:shrink-0">
-            <nav className="lg:sticky lg:top-24 flex gap-2 overflow-x-auto rounded-lg bg-muted p-2 lg:flex-col lg:overflow-visible lg:bg-transparent lg:p-0">
+            <nav className="lg:sticky lg:top-24 flex gap-2 overflow-x-auto rounded-xl bg-white border border-border shadow-sm p-2 lg:flex-col lg:overflow-visible">
               {sections.map((s) => {
                 const Icon = s.icon
                 const isActive = active === s.id
@@ -154,10 +156,10 @@ export default function CulturePage() {
                     type="button"
                     onClick={() => scrollTo(s.id)}
                     className={cn(
-                      'flex shrink-0 items-center gap-3 whitespace-nowrap rounded-md px-4 py-3 text-sm font-medium transition-colors lg:w-full',
+                      'flex shrink-0 items-center gap-3 whitespace-nowrap rounded-lg px-4 py-3 text-sm font-medium transition-colors lg:w-full',
                       isActive
-                        ? 'border-l-4 border-primary bg-primary/5 font-semibold text-primary'
-                        : 'text-foreground hover:bg-muted hover:text-primary',
+                        ? 'bg-primary text-white font-semibold'
+                        : 'text-foreground hover:bg-surface-orange hover:text-primary',
                     )}
                   >
                     <Icon size={18} strokeWidth={2} />
@@ -169,7 +171,7 @@ export default function CulturePage() {
           </aside>
 
           {/* Content */}
-          <div className="flex-1 space-y-20">
+          <div className="flex-1 space-y-24">
             {sections.map((s) => (
               <section key={s.id} id={s.id} className="scroll-mt-24">
                 <FadeUp>

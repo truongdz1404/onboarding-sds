@@ -24,7 +24,7 @@ export function CommunicationGuide() {
         return (
           <div
             key={item.title}
-            className="overflow-hidden rounded-lg border-2 border-border"
+            className="overflow-hidden rounded-xl border border-border bg-white shadow-sm"
           >
             <button
               type="button"
@@ -34,13 +34,13 @@ export function CommunicationGuide() {
             >
               <span
                 className={cn(
-                  'flex h-10 w-10 items-center justify-center rounded-md transition-colors',
-                  isOpen ? 'bg-primary text-white' : 'bg-muted text-foreground',
+                  'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+                  isOpen ? 'bg-primary text-white' : 'bg-white text-foreground',
                 )}
               >
                 <Icon size={20} strokeWidth={2} />
               </span>
-              <span className="flex-1 font-semibold">{item.title}</span>
+              <span className="flex-1 font-semibold text-text-dark">{item.title}</span>
               <ChevronDown
                 size={20}
                 className={cn(

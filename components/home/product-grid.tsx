@@ -1,26 +1,16 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'motion/react'
-import {
-  FileText,
-  Calculator,
-  ShieldCheck,
-  ShoppingCart,
-  FileSignature,
-  Users,
-  ArrowRight,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { SectionHeader } from '@/components/shared/section-header'
 
 type Product = {
   name: string
   category: string
   desc: string
-  icon: LucideIcon
-  bg: string
-  badge: string
-  iconBg: string
+  icon: string
+  featured: boolean
 }
 
 const products: Product[] = [
@@ -28,60 +18,47 @@ const products: Product[] = [
     name: 'EasyInvoice',
     category: 'Hóa đơn điện tử',
     desc: 'Phát hành & quản lý hóa đơn điện tử tuân thủ quy định thuế.',
-    icon: FileText,
-    bg: 'bg-primary/10',
-    badge: 'bg-primary text-white',
-    iconBg: 'bg-primary',
+    icon: '/images/products/easyinvoice.png',
+    featured: true,
   },
   {
     name: 'EasyBooks',
     category: 'Phần mềm kế toán',
     desc: 'Quản lý sổ sách, báo cáo tài chính nhanh chóng và chính xác.',
-    icon: Calculator,
-    bg: 'bg-blue-50',
-    badge: 'bg-blue-600 text-white',
-    iconBg: 'bg-blue-600',
+    icon: '/images/products/easybooks.png',
+    featured: false,
   },
   {
     name: 'EasyCA',
     category: 'Chữ ký số',
     desc: 'Giải pháp chữ ký số an toàn cho doanh nghiệp & cá nhân.',
-    icon: ShieldCheck,
-    bg: 'bg-green-50',
-    badge: 'bg-green-600 text-white',
-    iconBg: 'bg-green-600',
+    icon: '/images/products/easyca.png',
+    featured: true,
   },
   {
     name: 'EasyPOS',
     category: 'Quản lý bán hàng',
     desc: 'Quản lý bán hàng đa kênh, tồn kho và doanh thu real-time.',
-    icon: ShoppingCart,
-    bg: 'bg-teal-50',
-    badge: 'bg-teal-600 text-white',
-    iconBg: 'bg-teal-600',
+    icon: '/images/products/easypos.png',
+    featured: false,
   },
   {
     name: 'EasyDocs',
     category: 'Hợp đồng điện tử',
     desc: 'Ký kết & lưu trữ hợp đồng điện tử có giá trị pháp lý.',
-    icon: FileSignature,
-    bg: 'bg-amber-50',
-    badge: 'bg-amber-600 text-white',
-    iconBg: 'bg-amber-600',
+    icon: '/images/products/easydocs.png',
+    featured: true,
   },
   {
     name: 'EasyHRM',
     category: 'Quản lý nhân sự',
     desc: 'Chấm công, tính lương, quản lý nhân sự toàn diện.',
-    icon: Users,
-    bg: 'bg-rose-50',
-    badge: 'bg-rose-600 text-white',
-    iconBg: 'bg-rose-600',
+    icon: '/images/products/easyhrm.png',
+    featured: false,
   },
 ]
 
 function FlipCard({ product, index }: { product: Product; index: number }) {
-  const Icon = product.icon
   return (
     <motion.div
       className="group h-56 [perspective:1200px]"
@@ -93,20 +70,24 @@ function FlipCard({ product, index }: { product: Product; index: number }) {
       <div className="relative h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
         {/* Front */}
         <div
-          className={`absolute inset-0 flex flex-col justify-between rounded-lg p-6 [backface-visibility:hidden] ${product.bg}`}
+          className={`absolute inset-0 flex flex-col justify-between rounded-xl p-6 [backface-visibility:hidden] bg-white shadow-sm ${
+            product.featured ? 'border-2 border-primary/40' : 'border border-border'
+          }`}
         >
-          <div
-            className={`flex h-14 w-14 items-center justify-center rounded-lg ${product.iconBg}`}
-          >
-            <Icon size={28} className="text-white" strokeWidth={2} />
+          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-surface-orange">
+            <Image
+              src={product.icon}
+              alt={product.name}
+              width={36}
+              height={36}
+              className="object-contain"
+            />
           </div>
           <div>
-            <span
-              className={`eyebrow inline-block rounded-md px-2.5 py-1 ${product.badge}`}
-            >
+            <span className="eyebrow inline-block rounded-md bg-primary/10 px-2.5 py-1 text-primary">
               {product.category}
             </span>
-            <h3 className="mt-3 text-xl font-bold tracking-tight">
+            <h3 className="mt-3 text-xl font-bold tracking-tight text-text-dark">
               {product.name}
             </h3>
           </div>
@@ -114,11 +95,15 @@ function FlipCard({ product, index }: { product: Product; index: number }) {
 
         {/* Back */}
         <div
-          className={`absolute inset-0 flex flex-col justify-between rounded-lg p-6 [backface-visibility:hidden] [transform:rotateY(180deg)] ${product.bg}`}
+          className={`absolute inset-0 flex flex-col justify-between rounded-xl p-6 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-white shadow-sm ${
+            product.featured ? 'border-2 border-primary/40' : 'border border-border'
+          }`}
         >
           <div>
-            <h3 className="text-xl font-bold tracking-tight">{product.name}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-foreground/70">
+            <h3 className="text-xl font-bold tracking-tight text-text-dark">
+              {product.name}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {product.desc}
             </p>
           </div>
@@ -134,7 +119,7 @@ function FlipCard({ product, index }: { product: Product; index: number }) {
 
 export function ProductGrid() {
   return (
-    <section className="bg-background py-24">
+    <section className="bg-surface-white py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="Hệ sinh thái"

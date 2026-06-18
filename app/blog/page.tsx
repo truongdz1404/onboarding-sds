@@ -17,22 +17,25 @@ export default function BlogPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-muted pt-28 pb-14">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <span className="eyebrow inline-block rounded-md bg-primary px-3 py-1.5 text-white">
-            Blog nội bộ
-          </span>
-          <h1 className="mt-5 max-w-3xl text-balance text-4xl font-extrabold tracking-tight md:text-6xl">
-            Kiến thức thực chiến từ đội ngũ SoftDreams
+      <section className="relative overflow-hidden bg-white pt-28 pb-14 border-b border-border">
+        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-primary/8 blur-[100px]" />
+        <div className="pointer-events-none absolute top-10 right-0 h-72 w-72 rounded-full bg-amber-400/8 blur-[80px]" />
+        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="inline-flex items-center gap-3 mb-6">
+            <span className="block h-px w-8 bg-primary shrink-0" />
+            <span className="eyebrow text-primary">Blog nội bộ</span>
+          </div>
+          <h1 className="max-w-3xl text-balance font-extrabold text-5xl md:text-6xl text-text-dark" style={{ letterSpacing: '-0.04em', lineHeight: '0.9' }}>
+            Kiến thức <span className="gradient-text">thực chiến</span> từ đội ngũ SoftDreams
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground">
             Hướng dẫn, mẹo và quy trình được biên soạn bởi chính các thành viên
             — giúp bạn hội nhập nhanh và làm việc hiệu quả.
           </p>
         </div>
       </section>
 
-      <section className="bg-background py-14">
+      <section className="bg-surface-white py-14">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           {/* Filter tabs */}
           <div className="flex flex-wrap gap-2">
@@ -44,10 +47,10 @@ export default function BlogPage() {
                   type="button"
                   onClick={() => setFilter(cat)}
                   className={cn(
-                    'rounded-md px-4 py-2 text-sm font-semibold transition-colors',
+                    'rounded-xl px-4 py-2 text-sm font-semibold transition-colors',
                     active
                       ? 'bg-primary text-white'
-                      : 'bg-muted text-foreground hover:bg-[#e5e7eb]',
+                      : 'bg-white text-foreground border border-border hover:bg-surface-orange',
                   )}
                 >
                   {cat}
@@ -57,30 +60,34 @@ export default function BlogPage() {
           </div>
 
           {/* Featured */}
-          <div className="relative mt-10 overflow-hidden rounded-lg bg-secondary p-8 text-white md:p-10">
-            <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/5" />
-            <div className="pointer-events-none absolute bottom-0 right-1/4 h-32 w-32 rotate-45 bg-primary/10" />
+          <div className="relative mt-10 overflow-hidden rounded-xl bg-white border border-primary/20 p-8 md:p-10">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary/5" />
+            <div className="pointer-events-none absolute bottom-0 right-1/4 h-32 w-32 rotate-45 bg-primary/3" />
             <div className="relative grid items-center gap-8 md:grid-cols-2">
               <div>
-                <span className="eyebrow inline-block rounded-md bg-primary px-2.5 py-1 text-white">
-                  Featured
-                </span>
-                <h2 className="mt-4 text-balance text-3xl font-bold leading-snug tracking-tight">
+                <div className="inline-flex items-center gap-2 mb-4">
+                  <span className="block h-px w-6 bg-primary shrink-0" />
+                  <span className="eyebrow text-primary">Nổi bật</span>
+                </div>
+                <h2 className="text-balance font-extrabold text-3xl text-text-dark" style={{ letterSpacing: '-0.03em' }}>
                   {FEATURED.title}
                 </h2>
-                <p className="mt-3 text-white/70 leading-relaxed">
+                <p className="mt-3 text-muted-foreground leading-relaxed">
                   {FEATURED.excerpt}
                 </p>
-                <div className="mt-5 flex items-center gap-3 text-sm text-white/60">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-md bg-white/10">
-                    <User size={18} className="text-accent" />
+                <div className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-md bg-surface-orange">
+                    <User size={18} className="text-primary" />
                   </span>
                   <div>
-                    <div className="font-semibold text-white">Phòng Nhân sự</div>
+                    <div className="font-semibold text-text-dark">Phòng Nhân sự</div>
                     <div>{FEATURED.readTime} đọc · {FEATURED.views} lượt xem</div>
                   </div>
                 </div>
-                <button type="button" className="btn-ghost mt-7 !h-12">
+                <button
+                  type="button"
+                  className="btn-primary mt-7 !h-12"
+                >
                   Đọc bài viết
                   <ArrowRight size={18} />
                 </button>
@@ -91,12 +98,12 @@ export default function BlogPage() {
                     <span
                       key={i}
                       className={cn(
-                        'h-16 w-16 rounded-md',
+                        'h-14 w-14 rounded-xl',
                         i % 3 === 0
-                          ? 'bg-primary/40'
+                          ? 'bg-primary/12'
                           : i % 3 === 1
-                            ? 'bg-white/10'
-                            : 'bg-accent/30',
+                            ? 'bg-primary/6'
+                            : 'bg-surface-orange',
                       )}
                     />
                   ))}

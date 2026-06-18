@@ -1,24 +1,24 @@
 import Link from 'next/link'
-import { Mail, Phone, Globe, Sparkles } from 'lucide-react'
+import Image from 'next/image'
+import { Mail, Phone, Globe, MapPin } from 'lucide-react'
 import { NAV_LINKS, COMPANY } from '@/lib/site'
 
 export function Footer() {
   return (
-    <footer className="bg-[#0d1117] text-white border-t-4 border-primary">
+    <footer className="bg-surface-orange border-t border-border">
       <div className="mx-auto max-w-7xl px-5 lg:px-8 py-16">
         <div className="grid gap-12 md:grid-cols-3">
           {/* Col 1 */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary">
-                <Sparkles size={20} className="text-white" strokeWidth={2.5} />
-              </span>
-              <span className="text-xl font-extrabold">
-                Soft<span className="text-accent">Dreams</span>
-              </span>
-            </div>
-            <p className="text-lg font-semibold">{COMPANY.slogan}</p>
-            <p className="text-sm text-white/60 max-w-xs leading-relaxed">
+            <Image
+              src="https://softdreams.vn/wp-content/uploads/2024/07/logoweb.png"
+              alt="SoftDreams"
+              width={160}
+              height={33}
+              className="h-9 w-auto object-contain"
+            />
+            <p className="text-sm font-semibold text-primary">{COMPANY.slogan}</p>
+            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
               Internal Onboarding Hub — đồng hành cùng bạn trong hành trình hội
               nhập gia đình SoftDreams.
             </p>
@@ -26,14 +26,17 @@ export function Footer() {
 
           {/* Col 2 */}
           <div className="flex flex-col gap-4">
-            <p className="eyebrow text-accent">Điều hướng</p>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="block h-px w-5 bg-primary shrink-0" />
+              <p className="eyebrow text-primary">Điều hướng</p>
+            </div>
             <nav className="flex flex-col gap-3">
               {[...NAV_LINKS, { href: '/chat', label: 'SoftBot AI' }].map(
                 (link) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="text-white/70 hover:text-accent transition-colors w-fit"
+                    className="text-muted-foreground hover:text-primary transition-colors w-fit"
                   >
                     {link.label}
                   </Link>
@@ -44,26 +47,33 @@ export function Footer() {
 
           {/* Col 3 */}
           <div className="flex flex-col gap-4">
-            <p className="eyebrow text-accent">Liên hệ</p>
-            <ul className="flex flex-col gap-3 text-white/70">
-              <li className="flex items-center gap-3">
-                <Mail size={16} className="text-accent shrink-0" />
+            <div className="flex items-center gap-2 mb-1">
+              <span className="block h-px w-5 bg-primary shrink-0" />
+              <p className="eyebrow text-primary">Liên hệ</p>
+            </div>
+            <ul className="flex flex-col gap-3 text-muted-foreground text-sm">
+              <li className="flex items-start gap-3">
+                <Mail size={15} className="text-primary shrink-0 mt-0.5" />
                 {COMPANY.email}
               </li>
-              <li className="flex items-center gap-3">
-                <Phone size={16} className="text-accent shrink-0" />
+              <li className="flex items-start gap-3">
+                <Phone size={15} className="text-primary shrink-0 mt-0.5" />
                 {COMPANY.hotline}
               </li>
-              <li className="flex items-center gap-3">
-                <Globe size={16} className="text-accent shrink-0" />
+              <li className="flex items-start gap-3">
+                <Globe size={15} className="text-primary shrink-0 mt-0.5" />
                 {COMPANY.website}
+              </li>
+              <li className="flex items-start gap-3">
+                <MapPin size={15} className="text-primary shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{COMPANY.address}</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 border-t-2 border-white/10 pt-6">
-          <p className="text-sm text-white/40">
+        <div className="mt-12 border-t border-border pt-6">
+          <p className="text-sm text-muted-foreground">
             © 2024 SoftDreams · Dành cho nhân viên nội bộ
           </p>
         </div>

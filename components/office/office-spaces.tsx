@@ -20,15 +20,16 @@ export function OfficeSpaces() {
       {spaces.map((s, i) => (
         <motion.div
           key={s.title}
-          className="group flex flex-col gap-4 rounded-lg bg-muted p-6 transition-all duration-200 hover:scale-[1.02] hover:bg-[#ebedf0]"
+          className="group flex flex-col gap-4 rounded-xl bg-white border border-border shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.3, delay: i * 0.05 }}
+          whileHover={{ y: -4, transition: { duration: 0.2 } }}
         >
           <IconBox icon={s.icon} />
           <div>
-            <h3 className="text-lg font-bold tracking-tight">{s.title}</h3>
+            <h3 className="text-lg font-bold tracking-tight text-text-dark">{s.title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
           </div>
         </motion.div>

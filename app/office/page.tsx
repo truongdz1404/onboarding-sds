@@ -49,33 +49,34 @@ export default function OfficePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-secondary pt-28 pb-16 text-white">
-        <div className="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-white/5" />
-        <div className="pointer-events-none absolute bottom-0 left-10 h-40 w-40 rotate-12 rounded-lg bg-primary/10" />
+      <section className="relative overflow-hidden bg-white pt-28 pb-16 border-b border-border">
+        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-primary/8 blur-[100px]" />
+        <div className="pointer-events-none absolute top-10 -right-10 h-72 w-72 rounded-full bg-amber-400/8 blur-[80px]" />
         <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white/10">
-            <MapPin size={32} className="text-accent" strokeWidth={2} />
+          <div className="inline-flex items-center gap-3 mb-6">
+            <span className="block h-px w-8 bg-primary shrink-0" />
+            <span className="eyebrow text-primary">Văn phòng 360°</span>
           </div>
-          <h1 className="mt-6 max-w-3xl text-balance text-4xl font-extrabold tracking-tight md:text-6xl">
-            Khám phá không gian làm việc của bạn
+          <h1 className="max-w-3xl text-balance font-extrabold text-5xl md:text-6xl text-text-dark" style={{ letterSpacing: '-0.04em', lineHeight: '0.9' }}>
+            Khám phá <span className="gradient-text">không gian</span> làm việc của bạn
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/70">
+          <p className="mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground">
             Tham quan trụ sở và chi nhánh SoftDreams qua bản đồ và hình ảnh thực
             tế trước ngày đầu đi làm.
           </p>
 
           {/* Location tabs */}
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-9 flex flex-wrap gap-3">
             {LOCATIONS.map((l) => (
               <button
                 key={l.id}
                 type="button"
                 onClick={() => setActive(l.id)}
                 className={cn(
-                  'flex items-center gap-2 rounded-md px-5 py-3 text-sm font-semibold transition-colors',
+                  'flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200',
                   active === l.id
-                    ? 'bg-primary text-white'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20',
+                    ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                    : 'bg-white border border-border text-foreground hover:bg-surface-orange hover:border-primary/20',
                 )}
               >
                 <Building2 size={18} />
@@ -87,9 +88,9 @@ export default function OfficePage() {
       </section>
 
       {/* Aerial / 360 viewer */}
-      <section className="bg-background py-14">
+      <section className="bg-white py-14">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="overflow-hidden rounded-lg border-2 border-border">
+          <div className="overflow-hidden rounded-2xl border border-border shadow-xl">
             <iframe
               key={`view-${active}`}
               title={`Toàn cảnh khu vực ${loc.label}`}
@@ -103,18 +104,18 @@ export default function OfficePage() {
       </section>
 
       {/* Map + address */}
-      <section className="bg-muted py-16">
+      <section className="bg-surface-orange py-16">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <SectionHeader eyebrow="Địa chỉ" title="Tìm đường đến văn phòng" />
           <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1.4fr]">
             {/* Address card */}
-            <div className="flex flex-col gap-5 rounded-lg bg-background p-7">
+            <div className="flex flex-col gap-5 rounded-xl bg-white border border-border shadow-sm p-7">
               <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-md bg-primary">
+                <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
                   <MapPin size={24} className="text-white" />
                 </span>
                 <div>
-                  <h3 className="text-xl font-bold">{loc.label}</h3>
+                  <h3 className="text-xl font-bold text-text-dark">{loc.label}</h3>
                   <p className="text-sm text-muted-foreground">{loc.sub}</p>
                 </div>
               </div>
@@ -145,7 +146,7 @@ export default function OfficePage() {
             </div>
 
             {/* Map */}
-            <div className="overflow-hidden rounded-lg border-2 border-border">
+            <div className="overflow-hidden rounded-xl border border-border">
               <iframe
                 key={`map-${active}`}
                 title={`Bản đồ ${loc.label}`}
@@ -160,7 +161,7 @@ export default function OfficePage() {
       </section>
 
       {/* Office spaces */}
-      <section className="bg-background py-16">
+      <section className="bg-surface-white py-16">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <FadeUp>
             <SectionHeader
