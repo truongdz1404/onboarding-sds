@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/firebase-admin'
-import { Timestamp } from 'firebase-admin/firestore'
 
 export async function GET(
   _req: NextRequest,
@@ -8,22 +7,25 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const doc = await db.collection('discussions').doc(id).get()
-    if (!doc.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const snapshot = await db.ref(`discussions/${id}`).get()
+    if (!snapshot.exists()) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    const d = doc.data()!
+    const d = snapshot.val() as Record<string, unknown>
     return NextResponse.json({
       post: {
-        id: doc.id,
+        id,
         title: d.title,
-        description: d.description ?? '',
-        author: d.author,
-        authorInitials: d.authorInitials,
-        category: d.category,
-        tags: d.tags ?? [],
-        upvoteCount: d.upvoteCount ?? 0,
-        commentCount: d.commentCount ?? 0,
-        createdAt: (d.createdAt as Timestamp).toDate().toISOString(),
+        description: (d.description as string) ?? '',
+        author: d.isAnonymous ? 'Ẩn danh' : d.author,
+        authorInitials: d.isAnonymous ? '?' : d.authorInitials,
+        photoURL: d.isAnonymous ? null : ((d.photoURL as string) ?? null),
+        uid: (d.uid as string) ?? null,
+        isAnonymous: (d.isAnonymous as boolean) ?? false,
+        category: (d.category as string) ?? 'Chung',
+        tags: (d.tags as string[]) ?? [],
+        upvoteCount: (d.upvoteCount as number) ?? 0,
+        commentCount: (d.commentCount as number) ?? 0,
+        createdAt: new Date(d.createdAt as number).toISOString(),
       },
     })
   } catch (err) {

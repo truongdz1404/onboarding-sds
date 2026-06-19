@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/firebase-admin'
-import { Timestamp } from 'firebase-admin/firestore'
 import { PostDetailClient } from '@/components/discussions/post-detail-client'
 import type { DiscussionPost } from '@/lib/discussion-types'
 
@@ -10,21 +9,23 @@ export default async function PostPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const doc = await db.collection('discussions').doc(id).get()
-  if (!doc.exists) notFound()
+  const snapshot = await db.ref(`discussions/${id}`).get()
+  if (!snapshot.exists()) notFound()
 
-  const d = doc.data()!
+  const d = snapshot.val() as Record<string, unknown>
   const post: DiscussionPost = {
-    id: doc.id,
-    title: d.title,
-    description: d.description ?? '',
-    author: d.author,
-    authorInitials: d.authorInitials,
-    category: d.category,
-    tags: d.tags ?? [],
-    upvoteCount: d.upvoteCount ?? 0,
-    commentCount: d.commentCount ?? 0,
-    createdAt: (d.createdAt as Timestamp).toDate().toISOString(),
+    id,
+    title: d.title as string,
+    description: (d.description as string) ?? '',
+    author: d.isAnonymous ? 'Ẩn danh' : (d.author as string),
+    authorInitials: d.isAnonymous ? '?' : (d.authorInitials as string),
+    photoURL: d.isAnonymous ? undefined : ((d.photoURL as string) ?? undefined),
+    isAnonymous: (d.isAnonymous as boolean) ?? false,
+    category: (d.category as string) ?? 'Chung',
+    tags: (d.tags as string[]) ?? [],
+    upvoteCount: (d.upvoteCount as number) ?? 0,
+    commentCount: (d.commentCount as number) ?? 0,
+    createdAt: new Date(d.createdAt as number).toISOString(),
   }
 
   return <PostDetailClient post={post} />

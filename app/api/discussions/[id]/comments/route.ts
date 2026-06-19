@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/firebase-admin'
 import { verifyRequest } from '@/lib/verify-token'
-import { Timestamp, FieldValue } from 'firebase-admin/firestore'
 
 function makeInitials(name: string) {
   return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -13,25 +12,24 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const snapshot = await db
-      .collection('discussions').doc(id)
-      .collection('comments')
-      .orderBy('createdAt', 'asc')
-      .get()
+    const snapshot = await db.ref(`comments/${id}`).orderByChild('createdAt').get()
 
-    const comments = snapshot.docs.map((doc) => {
-      const d = doc.data()
-      return {
-        id: doc.id,
-        postId: id,
-        content: d.content,
-        author: d.isAnonymous ? 'Ẩn danh' : d.author,
-        authorInitials: d.isAnonymous ? '?' : d.authorInitials,
-        photoURL: d.isAnonymous ? null : (d.photoURL ?? null),
-        isAnonymous: d.isAnonymous ?? false,
-        createdAt: (d.createdAt as Timestamp).toDate().toISOString(),
-      }
-    })
+    const comments: Record<string, unknown>[] = []
+    if (snapshot.exists()) {
+      snapshot.forEach((child) => {
+        const d = child.val() as Record<string, unknown>
+        comments.push({
+          id: child.key,
+          postId: id,
+          content: d.content,
+          author: d.isAnonymous ? 'Ẩn danh' : d.author,
+          authorInitials: d.isAnonymous ? '?' : d.authorInitials,
+          photoURL: d.isAnonymous ? null : ((d.photoURL as string) ?? null),
+          isAnonymous: (d.isAnonymous as boolean) ?? false,
+          createdAt: new Date(d.createdAt as number).toISOString(),
+        })
+      })
+    }
 
     return NextResponse.json({ comments })
   } catch (err) {
@@ -53,23 +51,21 @@ export async function POST(
     if (!content?.trim()) return NextResponse.json({ error: 'Missing content' }, { status: 400 })
 
     const displayName = decoded.name ?? decoded.email ?? 'Unknown'
+    const newRef = db.ref(`comments/${id}`).push()
 
-    await db
-      .collection('discussions').doc(id)
-      .collection('comments')
-      .add({
-        content: content.trim(),
-        author: displayName,
-        authorInitials: makeInitials(displayName),
-        photoURL: decoded.picture ?? null,
-        uid: decoded.uid,
-        isAnonymous: isAnonymous ?? false,
-        createdAt: new Date(),
-      })
-
-    await db.collection('discussions').doc(id).update({
-      commentCount: FieldValue.increment(1),
+    await newRef.set({
+      content: content.trim(),
+      author: displayName,
+      authorInitials: makeInitials(displayName),
+      photoURL: decoded.picture ?? null,
+      uid: decoded.uid,
+      isAnonymous: isAnonymous ?? false,
+      createdAt: Date.now(),
     })
+
+    await db.ref(`discussions/${id}/commentCount`).transaction(
+      (count: number | null) => (count ?? 0) + 1,
+    )
 
     return NextResponse.json({ ok: true })
   } catch (err) {

@@ -1,13 +1,8 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import {
-  User,
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut as fbSignOut,
-} from 'firebase/auth'
-import { auth, googleProvider } from './firebase-client'
+import { User, onAuthStateChanged, signOut as fbSignOut } from 'firebase/auth'
+import { auth, signInWithGoogleCentered } from './firebase-client'
 
 type PendingAction = (() => void) | null
 
@@ -55,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, pendingAction])
 
   const signInWithGoogle = useCallback(async () => {
-    await signInWithPopup(auth, googleProvider)
+    await signInWithGoogleCentered()
   }, [])
 
   const signOut = useCallback(async () => {
