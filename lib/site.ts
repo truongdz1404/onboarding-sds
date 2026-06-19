@@ -2,6 +2,7 @@ export const NAV_LINKS = [
   { href: '/', label: 'Tổng quan' },
   { href: '/culture', label: 'Văn hóa' },
   { href: '/blog', label: 'Blog' },
+  { href: '/discussions', label: 'Thảo luận' },
   { href: '/office', label: 'Văn phòng' },
 ]
 

@@ -9,6 +9,10 @@ __v0_jsx-dev-runtime.ts
 # Environment variables
 .env*.local
 
+# Firebase service account keys — NEVER commit these
+*firebase-adminsdk*.json
+*service-account*.json
+
 # Common ignores
 node_modules
 .next/
