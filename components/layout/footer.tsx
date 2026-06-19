@@ -5,7 +5,7 @@ import { NAV_LINKS, COMPANY } from '@/lib/site'
 
 export function Footer() {
   return (
-    <footer className="bg-surface-orange border-t border-border">
+    <footer style={{ background: '#0f171f' }}>
       <div className="mx-auto max-w-7xl px-5 lg:px-8 py-16">
         <div className="grid gap-12 md:grid-cols-3">
           {/* Col 1 */}
@@ -15,10 +15,10 @@ export function Footer() {
               alt="SoftDreams"
               width={160}
               height={33}
-              className="h-9 w-auto object-contain"
+              className="h-9 w-auto object-contain brightness-0 invert"
             />
             <p className="text-sm font-semibold text-primary">{COMPANY.slogan}</p>
-            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+            <p className="text-sm text-white/50 max-w-xs leading-relaxed">
               Internal Onboarding Hub — đồng hành cùng bạn trong hành trình hội
               nhập gia đình SoftDreams.
             </p>
@@ -26,17 +26,14 @@ export function Footer() {
 
           {/* Col 2 */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="block h-px w-5 bg-primary shrink-0" />
-              <p className="eyebrow text-primary">Điều hướng</p>
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-1">Điều hướng</p>
             <nav className="flex flex-col gap-3">
               {[...NAV_LINKS, { href: '/chat', label: 'SoftBot AI' }].map(
                 (link) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="text-muted-foreground hover:text-primary transition-colors w-fit"
+                    className="text-white/60 hover:text-white transition-colors w-fit text-sm"
                   >
                     {link.label}
                   </Link>
@@ -47,11 +44,8 @@ export function Footer() {
 
           {/* Col 3 */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="block h-px w-5 bg-primary shrink-0" />
-              <p className="eyebrow text-primary">Liên hệ</p>
-            </div>
-            <ul className="flex flex-col gap-3 text-muted-foreground text-sm">
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-1">Liên hệ</p>
+            <ul className="flex flex-col gap-3 text-white/60 text-sm">
               <li className="flex items-start gap-3">
                 <Mail size={15} className="text-primary shrink-0 mt-0.5" />
                 {COMPANY.email}
@@ -72,8 +66,8 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-border pt-6">
-          <p className="text-sm text-muted-foreground">
+        <div className="mt-12 border-t border-white/10 pt-6">
+          <p className="text-sm text-white/30">
             © 2024 SoftDreams · Dành cho nhân viên nội bộ
           </p>
         </div>

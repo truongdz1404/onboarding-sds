@@ -14,21 +14,21 @@ const values = [
 
 export function MissionVision() {
   return (
-    <section className="bg-surface-white py-24">
+    <section className="bg-surface-alt py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="Kim chỉ nam"
-          title="Sứ mệnh · Tầm nhìn · Giá trị"
+          title={<>Sứ mệnh <span className="gradient-text">·</span> Tầm nhìn <span className="gradient-text">·</span> Giá trị</>}
         />
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {/* Mission — cam đậm */}
           <FadeUp>
             <motion.article
-              className="flex h-full flex-col gap-5 rounded-xl bg-white border-2 border-primary p-8"
+              className="flex h-full flex-col gap-5 rounded-3xl bg-white border-2 border-primary p-8"
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
-              <span className="eyebrow w-fit rounded-md bg-primary/10 px-3 py-1.5 text-primary">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
                 Sứ mệnh
               </span>
               <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10">
@@ -44,10 +44,10 @@ export function MissionVision() {
           {/* Vision — cam nhạt */}
           <FadeUp delay={0.08}>
             <motion.article
-              className="flex h-full flex-col gap-5 rounded-xl bg-white border border-border shadow-sm p-8"
+              className="flex h-full flex-col gap-5 rounded-3xl bg-white border border-border shadow-sm p-8"
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
-              <span className="eyebrow w-fit rounded-md bg-primary/12 px-3 py-1.5 text-primary">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
                 Tầm nhìn
               </span>
               <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10">
@@ -62,10 +62,10 @@ export function MissionVision() {
           {/* Values — trắng viền cam */}
           <FadeUp delay={0.16}>
             <motion.article
-              className="flex h-full flex-col gap-5 rounded-xl border-l-4 border-primary bg-surface-white p-8 shadow-sm"
+              className="flex h-full flex-col gap-5 rounded-3xl border-l-4 border-primary bg-surface-orange p-8 shadow-sm"
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
-              <span className="eyebrow w-fit rounded-md bg-primary/10 px-3 py-1.5 text-primary">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
                 Giá trị cốt lõi
               </span>
               <div className="flex flex-col gap-4">

@@ -63,7 +63,7 @@ export function AITeaser() {
             </div>
 
             {/* Right — glassmorphism chat card */}
-            <div className="glass-dark rounded-2xl p-6 shadow-2xl">
+            <div className="glass-dark rounded-3xl p-7 shadow-2xl">
               <div className="flex items-center gap-3 border-b border-white/10 pb-4">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
                   <Bot size={20} className="text-white" />

@@ -4,9 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Google Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-heading: 'Google Sans Display', 'Google Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Google Sans', ui-monospace, monospace;
+  /* Fonts: Be Vietnam Pro (headings) + Inter (body) */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Be Vietnam Pro', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Inter', ui-monospace, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -25,39 +26,63 @@
   --color-ring: var(--ring);
 
   --color-surface-white: var(--surface-white);
+  --color-surface-alt: var(--surface-alt);
   --color-surface-orange: var(--surface-orange);
   --color-surface-orange-strong: var(--surface-orange-strong);
   --color-text-dark: var(--text-dark);
 
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
+  /* Coassemble-style pastel accent surfaces */
+  --color-pastel-blue: var(--pastel-blue);
+  --color-pastel-purple: var(--pastel-purple);
+  --color-pastel-lime: var(--pastel-lime);
+  --color-pastel-orange: var(--pastel-orange);
+
+  /* Border radius — large like Coassemble */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-3xl: 40px;
 }
 
 :root {
+  /* Base */
   --background: #ffffff;
-  --foreground: #111111;
+  --foreground: #0f171f;        /* Coassemble charcoal — richer than pure black */
   --card: #ffffff;
-  --card-foreground: #111111;
+  --card-foreground: #0f171f;
+
+  /* Brand */
   --primary: #e8601a;
   --primary-foreground: #ffffff;
-  --secondary: #1a2240;
+  --secondary: #0f171f;
   --secondary-foreground: #ffffff;
-  --muted: #f5f5f5;
+
+  /* Muted — Coassemble uses very light grays */
+  --muted: #f6f7f8;
   --muted-foreground: #6b7280;
   --accent: #ff9b5e;
-  --accent-foreground: #111111;
+  --accent-foreground: #0f171f;
+
+  /* Border & inputs */
   --border: #e5e7eb;
   --input: #e5e7eb;
   --ring: #e8601a;
-  --radius: 12px;
+  --radius: 16px;
 
+  /* Surfaces */
   --surface-white: #ffffff;
+  --surface-alt: #f6f7f8;       /* Coassemble section alt bg */
   --surface-orange: #FBF8F3;
   --surface-orange-strong: #F2EDE6;
-  --text-dark: #111111;
+  --text-dark: #0f171f;
+
+  /* Pastel accents (Coassemble card palette) */
+  --pastel-blue: #ccdaff;
+  --pastel-purple: #cbc3ff;
+  --pastel-lime: #ceffbd;
+  --pastel-orange: #ffb99b;
 }
 
 @layer base {
@@ -66,11 +91,14 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: 'ss01';
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
   html {
-    @apply font-sans bg-background;
+    @apply bg-background;
     scroll-behavior: smooth;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Be Vietnam Pro', 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
   ::selection {
     background: var(--primary);
@@ -82,62 +110,98 @@
   /* ---------- BUTTONS ---------- */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
-      font-semibold px-6 h-12 rounded-xl text-white cursor-pointer
-      transition-all duration-200
+      font-semibold px-6 h-11 rounded-full text-white cursor-pointer
+      bg-primary transition-all duration-200
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary;
-    background: linear-gradient(135deg, var(--primary) 0%, #f27c40 100%);
-    box-shadow: 0 1px 2px rgba(232,96,26,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
   }
   .btn-primary:hover {
-    background: linear-gradient(135deg, #cf5312 0%, var(--primary) 100%);
-    box-shadow: 0 0 0 4px rgba(232,96,26,0.12), 0 6px 20px rgba(232,96,26,0.28);
+    background: #cf5312;
+    box-shadow: 0 8px 28px rgba(232, 96, 26, 0.32);
     transform: translateY(-1px);
   }
   .btn-primary:active {
     transform: translateY(0);
   }
 
+  /* Dark/charcoal button — Coassemble's main CTA style */
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2
+      font-semibold px-6 h-11 rounded-full text-white cursor-pointer
+      transition-all duration-200
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-foreground;
+    background: #0f171f;
+  }
+  .btn-dark:hover {
+    background: #1e2d3d;
+    box-shadow: 0 8px 28px rgba(15, 23, 31, 0.24);
+    transform: translateY(-1px);
+  }
+
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 bg-surface-orange text-foreground
-      font-semibold px-6 h-12 rounded-xl border border-primary/20 transition-all duration-200
-      hover:bg-surface-orange-strong cursor-pointer
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary;
+    @apply inline-flex items-center justify-center gap-2 bg-foreground text-white
+      font-semibold px-6 h-11 rounded-full border border-transparent transition-all duration-200
+      hover:bg-foreground/80 cursor-pointer
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-foreground;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 border-2 border-primary text-primary
-      font-semibold px-6 h-12 rounded-xl bg-transparent transition-all duration-200
+    @apply inline-flex items-center justify-center gap-2 border-2 border-foreground text-foreground
+      font-semibold px-6 h-11 rounded-full bg-transparent transition-all duration-200
       cursor-pointer
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary;
   }
   .btn-outline:hover {
-    background: linear-gradient(135deg, var(--primary) 0%, #f27c40 100%);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 6px 20px rgba(232,96,26,0.25);
+    @apply bg-foreground text-white;
     transform: translateY(-1px);
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 border border-border text-foreground
-      font-semibold px-6 h-12 rounded-xl bg-transparent transition-all duration-200
-      hover:bg-surface-orange hover:border-primary/20 cursor-pointer
+    @apply inline-flex items-center justify-center gap-2 text-foreground
+      font-semibold px-6 h-11 rounded-full bg-transparent transition-all duration-200
+      hover:bg-muted cursor-pointer
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary;
+  }
+
+  /* ---------- TAG / BADGE PILL ---------- */
+  .tag-primary {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5
+      text-xs font-semibold uppercase tracking-widest bg-primary/10 text-primary;
+  }
+  .tag-dark {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5
+      text-xs font-semibold uppercase tracking-widest bg-foreground/10 text-foreground;
+  }
+  .tag-light {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5
+      text-xs font-semibold uppercase tracking-widest bg-white/15 text-white;
+  }
+
+  /* ---------- CARDS ---------- */
+  .card-base {
+    @apply rounded-3xl bg-white border border-border transition-all duration-300;
+  }
+  .card-hover {
+    @apply rounded-3xl bg-white border border-border transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
   }
 
   /* ---------- TYPOGRAPHY ---------- */
   .hero-title {
-    @apply font-extrabold text-5xl md:text-6xl lg:text-7xl;
-    letter-spacing: -0.04em;
-    line-height: 0.9;
+    font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+    @apply font-bold text-4xl md:text-5xl lg:text-6xl;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
   }
   .section-title {
-    @apply font-extrabold text-3xl md:text-4xl lg:text-5xl leading-tight;
-    letter-spacing: -0.03em;
+    font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+    @apply font-bold text-2xl md:text-3xl lg:text-4xl;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
   }
   .eyebrow {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     @apply text-xs font-semibold uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.09em;
+    color: var(--primary);
   }
 
   /* ---------- GRADIENT TEXT ---------- */
@@ -158,7 +222,7 @@
 
   /* ---------- INPUTS ---------- */
   .input-flat {
-    @apply w-full bg-muted border-0 rounded-xl px-4 py-3 text-foreground
+    @apply w-full bg-muted border-0 rounded-2xl px-4 py-3 text-foreground
       placeholder:text-muted-foreground transition-colors duration-200
       focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary;
   }

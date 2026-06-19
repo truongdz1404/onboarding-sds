@@ -24,7 +24,7 @@ export function Timeline() {
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="Hành trình"
-          title="11 năm xây dựng hệ sinh thái"
+          title={<><span className="gradient-text">11</span> năm xây dựng hệ sinh thái</>}
           description="Từ một sản phẩm BHXH đầu tiên đến hệ sinh thái phần mềm quản trị toàn diện."
         />
 

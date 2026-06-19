@@ -70,11 +70,11 @@ function FlipCard({ product, index }: { product: Product; index: number }) {
       <div className="relative h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
         {/* Front */}
         <div
-          className={`absolute inset-0 flex flex-col justify-between rounded-xl p-6 [backface-visibility:hidden] bg-white shadow-sm ${
-            product.featured ? 'border-2 border-primary/40' : 'border border-border'
+          className={`absolute inset-0 flex flex-col justify-between rounded-3xl p-6 [backface-visibility:hidden] bg-white ${
+            product.featured ? 'border-2 border-primary/40 shadow-md shadow-primary/10' : 'border border-border shadow-sm'
           }`}
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-surface-orange">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/8">
             <Image
               src={product.icon}
               alt={product.name}
@@ -84,7 +84,7 @@ function FlipCard({ product, index }: { product: Product; index: number }) {
             />
           </div>
           <div>
-            <span className="eyebrow inline-block rounded-md bg-primary/10 px-2.5 py-1 text-primary">
+            <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
               {product.category}
             </span>
             <h3 className="mt-3 text-xl font-bold tracking-tight text-text-dark">
@@ -95,7 +95,7 @@ function FlipCard({ product, index }: { product: Product; index: number }) {
 
         {/* Back */}
         <div
-          className={`absolute inset-0 flex flex-col justify-between rounded-xl p-6 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-white shadow-sm ${
+          className={`absolute inset-0 flex flex-col justify-between rounded-3xl p-6 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-white ${
             product.featured ? 'border-2 border-primary/40' : 'border border-border'
           }`}
         >
@@ -119,11 +119,11 @@ function FlipCard({ product, index }: { product: Product; index: number }) {
 
 export function ProductGrid() {
   return (
-    <section className="bg-surface-white py-24">
+    <section className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="Hệ sinh thái"
-          title="6 sản phẩm định hình hệ sinh thái"
+          title={<><span className="gradient-text">6</span> sản phẩm định hình hệ sinh thái</>}
           description="Bộ giải pháp toàn diện giúp doanh nghiệp số hóa mọi nghiệp vụ. Di chuột để xem chi tiết."
         />
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

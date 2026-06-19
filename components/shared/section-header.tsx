@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
@@ -14,7 +15,7 @@ export function SectionHeader({
   className,
 }: {
   eyebrow?: string
-  title: string
+  title: React.ReactNode
   description?: string
   align?: 'left' | 'center'
   light?: boolean
@@ -30,7 +31,7 @@ export function SectionHeader({
     >
       {eyebrow ? (
         <motion.div
-          className="inline-flex items-center gap-3"
+          className="inline-flex"
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
@@ -38,16 +39,13 @@ export function SectionHeader({
         >
           <span
             className={cn(
-              'block h-px w-8 shrink-0',
-              light ? 'bg-white/60' : 'bg-primary',
-            )}
-          />
-          <span
-            className={cn(
-              'text-xs font-semibold uppercase tracking-widest',
-              light ? 'text-white/80' : 'text-primary',
+              'inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider',
+              light
+                ? 'border border-white/20 bg-white/10 text-white'
+                : 'border border-primary/20 bg-primary/8 text-primary',
             )}
           >
+            <span className={cn('h-1.5 w-1.5 rounded-full flex-shrink-0', light ? 'bg-white' : 'bg-primary')} />
             {eyebrow}
           </span>
         </motion.div>

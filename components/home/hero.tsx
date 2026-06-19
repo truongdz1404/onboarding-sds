@@ -24,7 +24,7 @@ const item = {
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-white">
+    <section className="relative overflow-hidden bg-surface-alt">
       {/* Glow orbs */}
       <div className="pointer-events-none absolute -top-60 left-1/2 -translate-x-1/3 h-[700px] w-[700px] rounded-full bg-primary/10 blur-[120px]" />
       <div className="pointer-events-none absolute top-40 -right-20 h-72 w-72 rounded-full bg-amber-400/10 blur-[80px]" />
@@ -37,9 +37,9 @@ export function Hero() {
           <motion.div variants={container} initial="hidden" animate="show">
 
             {/* Glassmorphism badge */}
-            <motion.div
+              <motion.div
               variants={item}
-              className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/80 backdrop-blur-sm px-5 py-2.5 mb-10 shadow-sm"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-4 py-2 mb-10"
             >
               <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
               <span className="eyebrow text-primary">Onboarding Hub · SoftDreams</span>
@@ -59,7 +59,7 @@ export function Hero() {
             </motion.p>
 
             <motion.div variants={item} className="mt-9 flex flex-wrap gap-3">
-              <Link href="/culture" className="btn-primary">
+              <Link href="/culture" className="btn-dark">
                 Bắt đầu hội nhập
                 <ArrowRight size={18} />
               </Link>

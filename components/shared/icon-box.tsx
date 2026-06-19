@@ -23,7 +23,7 @@ export function IconBox({
   className?: string
 }) {
   const base =
-    'rounded-lg flex items-center justify-center transition-all duration-200 shrink-0'
+    'rounded-2xl flex items-center justify-center transition-all duration-200 shrink-0'
 
   if (variant === 'muted') {
     return (

@@ -12,24 +12,28 @@ const items = [
     title: 'Về SoftDreams',
     desc: 'Lịch sử, sứ mệnh, cơ cấu tổ chức',
     href: '/#timeline',
+    bg: 'bg-[#ccdaff]',
   },
   {
     icon: Target,
     title: 'Văn hóa & Nội quy',
     desc: 'Cách chúng ta làm việc cùng nhau',
     href: '/culture',
+    bg: 'bg-[#cbc3ff]',
   },
   {
     icon: FileText,
     title: 'Blog nội bộ',
     desc: 'Hướng dẫn thực chiến từ đội ngũ',
     href: '/blog',
+    bg: 'bg-[#ceffbd]',
   },
   {
     icon: MapPin,
     title: 'Văn phòng 360°',
     desc: 'Tour ảo không gian làm việc',
     href: '/office',
+    bg: 'bg-[#ffb99b]',
   },
 ]
 
@@ -44,11 +48,11 @@ const card = {
 
 export function QuickAccess() {
   return (
-    <section className="bg-surface-white py-24">
+    <section className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="Bắt đầu từ đâu?"
-          title="4 điểm dừng đầu tiên của bạn"
+          title={<><span className="gradient-text">4</span> điểm dừng đầu tiên của bạn</>}
           description="Khám phá những thông tin quan trọng nhất để hòa nhập nhanh chóng."
         />
 
@@ -67,16 +71,16 @@ export function QuickAccess() {
             >
               <Link
                 href={item.href}
-                className="group flex h-full flex-col gap-4 rounded-xl bg-white border border-border shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                className={`group flex h-full flex-col gap-4 rounded-3xl ${item.bg} border-0 p-7 transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5`}
               >
-                <IconBox icon={item.icon} />
+                <IconBox icon={item.icon} variant="muted" />
                 <h3 className="text-xl font-bold tracking-tight text-text-dark">
                   {item.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                <p className="text-sm text-foreground/60 leading-relaxed flex-1">
                   {item.desc}
                 </p>
-                <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-foreground/80">
                   Xem ngay
                   <ArrowRight
                     size={16}
