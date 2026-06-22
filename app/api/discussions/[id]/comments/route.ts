@@ -87,6 +87,8 @@ export async function POST(
       (count: number | null) => (count ?? 0) + 1,
     )
 
+    await db.ref(`userCommentPosts/${decoded.uid}/${id}`).set({ lastCommentAt: Date.now() })
+
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error(err)

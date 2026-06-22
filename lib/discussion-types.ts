@@ -17,6 +17,8 @@ export type DiscussionPost = {
   commentCount: number
   createdAt: string
   userVote?: UserVote
+  archived?: boolean
+  isSaved?: boolean
 }
 
 export type DiscussionComment = {

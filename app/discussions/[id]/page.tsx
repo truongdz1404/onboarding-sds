@@ -13,6 +13,8 @@ export default async function PostPage({
   if (!snapshot.exists()) notFound()
 
   const d = snapshot.val() as Record<string, unknown>
+  if (d.archived) notFound()
+
   const post: DiscussionPost = {
     id,
     title: d.title as string,
@@ -20,6 +22,7 @@ export default async function PostPage({
     author: d.isAnonymous ? 'Ẩn danh' : (d.author as string),
     authorInitials: d.isAnonymous ? '?' : (d.authorInitials as string),
     photoURL: d.isAnonymous ? undefined : ((d.photoURL as string) ?? undefined),
+    uid: (d.uid as string) ?? undefined,
     isAnonymous: (d.isAnonymous as boolean) ?? false,
     category: (d.category as string) ?? 'Chung',
     tags: (d.tags as string[]) ?? [],

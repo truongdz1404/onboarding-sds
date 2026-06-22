@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 import type { DiscussionPost, UserVote } from '@/lib/discussion-types'
 import type { VoteDirection } from '@/lib/vote-helpers'
+import { PostActionsMenu } from './post-actions-menu'
 
 const CATEGORY_META: Record<string, { slug: string; bg: string; fg: string }> = {
   'Chung':        { slug: 'chung',       bg: 'bg-sky-100',    fg: 'text-sky-600'    },
@@ -32,23 +33,36 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
   const [userVote, setUserVote]         = useState<UserVote>(null)
   const [voteCount, setVoteCount]     = useState(post.upvoteCount)
   const [voteLoading, setVoteLoading] = useState(false)
+  const [isSaved, setIsSaved]         = useState(false)
 
   useEffect(() => {
     if (!user) {
       setUserVote(null)
+      setIsSaved(false)
       return
     }
     let cancelled = false
     ;(async () => {
       const token = await getIdToken()
       if (!token || cancelled) return
-      const res = await fetch(`/api/discussions/${post.id}/vote`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (res.ok && !cancelled) {
-        const data = await res.json()
-        setUserVote(data.vote ?? null)
+      const [voteRes, saveRes] = await Promise.all([
+        fetch(`/api/discussions/${post.id}/vote`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`/api/discussions/${post.id}/save`, { headers: { Authorization: `Bearer ${token}` } }),
+      ])
+      if (!cancelled) {
+        if (voteRes.ok) {
+          const data = await voteRes.json()
+          setUserVote(data.vote ?? null)
+        }
+        if (saveRes.ok) {
+          const data = await saveRes.json()
+          setIsSaved(data.saved)
+        }
       }
+      fetch(`/api/discussions/${post.id}/history`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {})
     })()
     return () => { cancelled = true }
   }, [user, post.id])
@@ -148,12 +162,14 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
               </div>
             </div>
 
-            {/* Right: overflow placeholder */}
-            <button className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors">
-              <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 11.75a1.75 1.75 0 11.001-3.501A1.75 1.75 0 0116 11.75zM11.75 10a1.75 1.75 0 10-3.501.001A1.75 1.75 0 0011.75 10zm-6 0a1.75 1.75 0 10-3.501.001A1.75 1.75 0 005.75 10z" />
-              </svg>
-            </button>
+            {/* Right: overflow menu */}
+            <PostActionsMenu
+              postId={post.id}
+              creatorUid={post.uid}
+              initialSaved={isSaved}
+              onSavedChange={setIsSaved}
+              onArchived={() => router.push('/discussions')}
+            />
           </div>
 
           {/* Title */}

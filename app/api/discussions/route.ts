@@ -7,6 +7,8 @@ function makeInitials(name: string) {
   return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
+import { mapDiscussionPost } from '@/lib/discussion-mapper'
+
 export async function GET(req: NextRequest) {
   try {
     const sort = req.nextUrl.searchParams.get('sort') || 'newest'
@@ -14,9 +16,11 @@ export async function GET(req: NextRequest) {
 
     if (!snapshot.exists()) return NextResponse.json({ posts: [] })
 
-    const posts: ReturnType<typeof mapPost>[] = []
+    const posts: ReturnType<typeof mapDiscussionPost>[] = []
     snapshot.forEach((child) => {
-      posts.push(mapPost(child.key!, child.val()))
+      const d = child.val() as Record<string, unknown>
+      if (d.archived) return
+      posts.push(mapDiscussionPost(child.key!, d))
     })
 
     if (sort === 'top') {
@@ -39,25 +43,6 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })
-  }
-}
-
-function mapPost(id: string, d: Record<string, unknown>) {
-  return {
-    id,
-    title: d.title as string,
-    description: (d.description as string) ?? '',
-    author: d.isAnonymous ? 'Ẩn danh' : (d.author as string),
-    authorInitials: d.isAnonymous ? '?' : (d.authorInitials as string),
-    photoURL: d.isAnonymous ? null : ((d.photoURL as string) ?? null),
-    uid: (d.uid as string) ?? null,
-    isAnonymous: (d.isAnonymous as boolean) ?? false,
-    category: (d.category as string) ?? 'Chung',
-    tags: (d.tags as string[]) ?? [],
-    upvoteCount: (d.upvoteCount as number) ?? 0,
-    commentCount: (d.commentCount as number) ?? 0,
-    createdAt: new Date(d.createdAt as number).toISOString(),
-    userVote: null as ReturnType<typeof toUserVote>,
   }
 }
 

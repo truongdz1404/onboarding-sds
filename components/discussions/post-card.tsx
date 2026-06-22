@@ -7,6 +7,7 @@ import type { VoteDirection } from '@/lib/vote-helpers'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
+import { PostActionsMenu } from './post-actions-menu'
 
 const CATEGORY_META: Record<string, { slug: string; bg: string; fg: string }> = {
   'Chung':        { slug: 'chung',       bg: 'bg-sky-100',    fg: 'text-sky-600'    },
@@ -30,9 +31,10 @@ async function getIdToken() {
 interface PostCardProps {
   post: DiscussionPost
   userVote?: UserVote
+  onArchived?: () => void
 }
 
-export function PostCard({ post, userVote: initialUserVote = null }: PostCardProps) {
+export function PostCard({ post, userVote: initialUserVote = null, onArchived }: PostCardProps) {
   const { requireAuth } = useAuth()
   const [userVote, setUserVote]     = useState<UserVote>(initialUserVote)
   const [voteCount, setVoteCount] = useState(post.upvoteCount)
@@ -82,6 +84,7 @@ export function PostCard({ post, userVote: initialUserVote = null }: PostCardPro
 
         {/* ── Credit bar ── */}
         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-gray-500">
+          <div className="flex flex-1 flex-wrap items-center gap-x-1.5 gap-y-1 min-w-0">
           {/* Category chip */}
           <span className={cn('flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-bold', meta.bg, meta.fg)}>
             {meta.slug[0].toUpperCase()}
@@ -109,6 +112,14 @@ export function PostCard({ post, userVote: initialUserVote = null }: PostCardPro
           </span>
           <span className="text-gray-400">•</span>
           <time className="flex-shrink-0 text-gray-500">{timeAgo(post.createdAt)}</time>
+          </div>
+          <PostActionsMenu
+            postId={post.id}
+            creatorUid={post.uid}
+            initialSaved={post.isSaved}
+            onArchived={onArchived}
+            className="relative z-20 flex-shrink-0"
+          />
         </div>
 
         {/* ── Title ── */}

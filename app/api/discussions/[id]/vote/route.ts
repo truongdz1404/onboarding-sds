@@ -44,8 +44,10 @@ export async function POST(
 
     if (delta === -target) {
       await voteRef.remove()
+      await db.ref(`userVotes/${decoded.uid}/${id}`).remove()
     } else {
       await voteRef.set(target)
+      await db.ref(`userVotes/${decoded.uid}/${id}`).set({ vote: target, votedAt: Date.now() })
     }
     const scoreSnap = await scoreRef.transaction((c: number | null) => (c ?? 0) + delta)
     const score = (scoreSnap.snapshot.val() as number) ?? 0
