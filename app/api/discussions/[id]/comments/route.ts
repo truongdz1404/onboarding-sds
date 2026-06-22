@@ -1,18 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/firebase-admin'
 import { verifyRequest } from '@/lib/verify-token'
+import { readVote, toUserVote } from '@/lib/vote-helpers'
 
 function makeInitials(name: string) {
   return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params
+    const decoded = await verifyRequest(req)
     const snapshot = await db.ref(`comments/${id}`).orderByChild('createdAt').get()
+
+    const userVotes: Record<string, ReturnType<typeof toUserVote>> = {}
+    if (decoded) {
+      const votesSnap = await db.ref(`commentVotes/${id}`).get()
+      if (votesSnap.exists()) {
+        votesSnap.forEach((commentSnap) => {
+          const userSnap = commentSnap.child(decoded.uid)
+          if (userSnap.exists()) {
+            userVotes[commentSnap.key!] = toUserVote(readVote(userSnap.val()))
+          }
+        })
+      }
+    }
 
     const comments: Record<string, unknown>[] = []
     if (snapshot.exists()) {
@@ -27,6 +42,9 @@ export async function GET(
           photoURL: d.isAnonymous ? null : ((d.photoURL as string) ?? null),
           isAnonymous: (d.isAnonymous as boolean) ?? false,
           createdAt: new Date(d.createdAt as number).toISOString(),
+          parentId: (d.parentId as string) ?? null,
+          upvoteCount: (d.upvoteCount as number) ?? 0,
+          userVote: userVotes[child.key!] ?? null,
         })
       })
     }
@@ -47,7 +65,7 @@ export async function POST(
     if (!decoded) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { id } = await params
-    const { content, isAnonymous } = await req.json()
+    const { content, isAnonymous, parentId } = await req.json()
     if (!content?.trim()) return NextResponse.json({ error: 'Missing content' }, { status: 400 })
 
     const displayName = decoded.name ?? decoded.email ?? 'Unknown'
@@ -61,6 +79,8 @@ export async function POST(
       uid: decoded.uid,
       isAnonymous: isAnonymous ?? false,
       createdAt: Date.now(),
+      parentId: parentId ?? null,
+      upvoteCount: 0,
     })
 
     await db.ref(`discussions/${id}/commentCount`).transaction(

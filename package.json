@@ -11,6 +11,11 @@
   "dependencies": {
     "@ai-sdk/react": "^3.0.199",
     "@base-ui/react": "^1.5.0",
+    "@tiptap/extension-link": "^3.27.1",
+    "@tiptap/extension-placeholder": "^3.27.1",
+    "@tiptap/pm": "^3.27.1",
+    "@tiptap/react": "^3.27.1",
+    "@tiptap/starter-kit": "^3.27.1",
     "@vercel/analytics": "1.6.1",
     "ai": "^6.0.197",
     "class-variance-authority": "^0.7.1",

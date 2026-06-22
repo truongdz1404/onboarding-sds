@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/firebase-admin'
 import { verifyRequest } from '@/lib/verify-token'
+import { readVote, toUserVote } from '@/lib/vote-helpers'
 
 function makeInitials(name: string) {
   return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -22,6 +23,16 @@ export async function GET(req: NextRequest) {
       posts.sort((a, b) => b.upvoteCount - a.upvoteCount)
     } else {
       posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    }
+
+    const decoded = await verifyRequest(req)
+    if (decoded && posts.length > 0) {
+      await Promise.all(
+        posts.map(async (post) => {
+          const snap = await db.ref(`votes/${post.id}/${decoded.uid}`).get()
+          post.userVote = toUserVote(readVote(snap.val()))
+        }),
+      )
     }
 
     return NextResponse.json({ posts: posts.slice(0, 50) })
@@ -46,6 +57,7 @@ function mapPost(id: string, d: Record<string, unknown>) {
     upvoteCount: (d.upvoteCount as number) ?? 0,
     commentCount: (d.commentCount as number) ?? 0,
     createdAt: new Date(d.createdAt as number).toISOString(),
+    userVote: null as ReturnType<typeof toUserVote>,
   }
 }
 

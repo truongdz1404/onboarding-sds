@@ -3,26 +3,9 @@ import { db } from '@/lib/firebase-admin'
 import { verifyRequest } from '@/lib/verify-token'
 import { fromUserVote, readVote, toUserVote, voteDelta, type VoteDirection } from '@/lib/vote-helpers'
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  try {
-    const decoded = await verifyRequest(req)
-    if (!decoded) return NextResponse.json({ vote: null })
-
-    const { id } = await params
-    const snap = await db.ref(`votes/${id}/${decoded.uid}`).get()
-    return NextResponse.json({ vote: toUserVote(readVote(snap.val())) })
-  } catch (err) {
-    console.error(err)
-    return NextResponse.json({ error: 'Failed to fetch vote' }, { status: 500 })
-  }
-}
-
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string; commentId: string }> },
 ) {
   try {
     const decoded = await verifyRequest(req)
@@ -33,9 +16,9 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid direction' }, { status: 400 })
     }
 
-    const { id } = await params
-    const voteRef = db.ref(`votes/${id}/${decoded.uid}`)
-    const scoreRef = db.ref(`discussions/${id}/upvoteCount`)
+    const { id, commentId } = await params
+    const voteRef = db.ref(`commentVotes/${id}/${commentId}/${decoded.uid}`)
+    const scoreRef = db.ref(`comments/${id}/${commentId}/upvoteCount`)
 
     const snap = await voteRef.get()
     const current = readVote(snap.val())

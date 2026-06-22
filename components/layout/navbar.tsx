@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { NAV_LINKS } from '@/lib/site'
 import { cn } from '@/lib/utils'
 import { ScrollProgress } from '@/components/shared/scroll-progress'
+import { NavbarUser } from '@/components/layout/navbar-user'
 
 export function Navbar() {
   const pathname = usePathname()
@@ -69,7 +70,7 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      'relative px-4 py-2 text-sm font-semibold rounded-full transition-colors',
+                      'relative px-4 py-2 text-base font-semibold rounded-full transition-colors',
                       active
                         ? 'text-primary bg-primary/8'
                         : 'text-foreground/70 hover:text-foreground hover:bg-muted',
@@ -90,6 +91,7 @@ export function Navbar() {
                 <MessageCircle size={16} strokeWidth={2} />
                 Hỏi SoftBot
               </Link>
+              <NavbarUser />
               <button
                 type="button"
                 aria-label="Mở menu"

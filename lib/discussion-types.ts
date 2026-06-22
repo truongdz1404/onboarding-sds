@@ -1,3 +1,7 @@
+import type { UserVote } from '@/lib/vote-helpers'
+
+export type { UserVote } from '@/lib/vote-helpers'
+
 export type DiscussionPost = {
   id: string
   title: string
@@ -12,6 +16,7 @@ export type DiscussionPost = {
   upvoteCount: number
   commentCount: number
   createdAt: string
+  userVote?: UserVote
 }
 
 export type DiscussionComment = {
@@ -24,4 +29,7 @@ export type DiscussionComment = {
   uid?: string
   isAnonymous?: boolean
   createdAt: string
+  parentId?: string | null
+  upvoteCount: number
+  userVote?: UserVote
 }

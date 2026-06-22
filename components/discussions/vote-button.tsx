@@ -14,14 +14,14 @@ interface VoteButtonProps {
   count: number
   postId: string
   voted?: boolean
-  size?: 'sm' | 'lg'
+  size?: 'sm' | 'lg' | 'detail'
 }
 
 export function VoteButton({ count, postId, voted: initialVoted = false, size = 'sm' }: VoteButtonProps) {
   const { requireAuth } = useAuth()
-  const [voted, setVoted] = useState(initialVoted)
+  const [voted, setVoted]               = useState(initialVoted)
   const [currentCount, setCurrentCount] = useState(count)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading]           = useState(false)
 
   function handleClick(e: React.MouseEvent) {
     e.preventDefault()
@@ -52,6 +52,26 @@ export function VoteButton({ count, postId, voted: initialVoted = false, size = 
     }
   }
 
+  /* Detail page — PH-style boxed vote */
+  if (size === 'detail') {
+    return (
+      <button
+        onClick={handleClick}
+        disabled={loading}
+        className={cn(
+          'flex flex-col items-center gap-1 rounded-xl border px-4 py-2.5 font-semibold transition-all disabled:opacity-60',
+          voted
+            ? 'border-primary bg-primary text-white shadow-sm shadow-primary/20'
+            : 'border-[#e5e7eb] bg-white text-[#6b7280] hover:border-primary hover:text-primary',
+        )}
+      >
+        <ChevronUp size={17} strokeWidth={2.5} />
+        <span className="text-xs leading-none">{currentCount}</span>
+      </button>
+    )
+  }
+
+  /* Legacy large size (kept for backward compat) */
   if (size === 'lg') {
     return (
       <button
@@ -71,7 +91,7 @@ export function VoteButton({ count, postId, voted: initialVoted = false, size = 
     )
   }
 
-  /* Default compact PH-style vote button */
+  /* Default compact (used in post-card) */
   return (
     <button
       onClick={handleClick}

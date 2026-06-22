@@ -1,99 +1,252 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import { VoteButton } from './vote-button'
-import { CommentSection } from './comment-section'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { timeAgo } from '@/lib/time-utils'
-import type { DiscussionPost } from '@/lib/discussion-types'
+import { CommentSection } from './comment-section'
+import { DiscussionsSidebar } from './discussions-sidebar'
+import { useAuth } from '@/lib/auth-context'
+import { cn } from '@/lib/utils'
+import type { DiscussionPost, UserVote } from '@/lib/discussion-types'
+import type { VoteDirection } from '@/lib/vote-helpers'
 
-const CATEGORY_COLORS: Record<string, string> = {
-  'Chung': 'bg-slate-100 text-slate-600',
-  'Văn hóa': 'bg-purple-100 text-purple-700',
-  'Sản phẩm': 'bg-blue-100 text-blue-700',
-  'Tip & Trick': 'bg-green-100 text-green-700',
-  'Hỏi đáp': 'bg-amber-100 text-amber-700',
-  'Thông báo': 'bg-red-100 text-red-600',
+const CATEGORY_META: Record<string, { slug: string; bg: string; fg: string }> = {
+  'Chung':        { slug: 'chung',       bg: 'bg-sky-100',    fg: 'text-sky-600'    },
+  'Kỹ thuật':    { slug: 'ky-thuat',    bg: 'bg-violet-100', fg: 'text-violet-600' },
+  'Hỏi & Đáp':   { slug: 'hoi-dap',     bg: 'bg-amber-100',  fg: 'text-amber-600'  },
+  'Giới thiệu':  { slug: 'gioi-thieu',  bg: 'bg-green-100',  fg: 'text-green-600'  },
+  'Sản phẩm':    { slug: 'san-pham',    bg: 'bg-rose-100',   fg: 'text-rose-600'   },
+  'Kinh nghiệm': { slug: 'kinh-nghiem', bg: 'bg-teal-100',   fg: 'text-teal-600'   },
+  'Hoạt động':   { slug: 'hoat-dong',   bg: 'bg-orange-100', fg: 'text-orange-600' },
+}
+
+async function getIdToken() {
+  const { auth } = await import('@/lib/firebase-client')
+  return auth.currentUser?.getIdToken() ?? null
 }
 
 export function PostDetailClient({ post }: { post: DiscussionPost }) {
-  const catColor = CATEGORY_COLORS[post.category] ?? 'bg-muted text-muted-foreground'
+  const router = useRouter()
+  const { user, requireAuth } = useAuth()
+  const [userVote, setUserVote]         = useState<UserVote>(null)
+  const [voteCount, setVoteCount]     = useState(post.upvoteCount)
+  const [voteLoading, setVoteLoading] = useState(false)
+
+  useEffect(() => {
+    if (!user) {
+      setUserVote(null)
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      const token = await getIdToken()
+      if (!token || cancelled) return
+      const res = await fetch(`/api/discussions/${post.id}/vote`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok && !cancelled) {
+        const data = await res.json()
+        setUserVote(data.vote ?? null)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [user, post.id])
+
+  function handleVote(e: React.MouseEvent, direction: VoteDirection) {
+    e.preventDefault()
+    requireAuth(() => doVote(direction))
+  }
+
+  async function doVote(direction: VoteDirection) {
+    if (voteLoading) return
+    setVoteLoading(true)
+    try {
+      const token = await getIdToken()
+      const res = await fetch(`/api/discussions/${post.id}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ direction }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setUserVote(data.vote ?? null)
+        setVoteCount(data.score)
+      }
+    } finally {
+      setVoteLoading(false)
+    }
+  }
+
+  const meta = CATEGORY_META[post.category] ?? { slug: 'chung', bg: 'bg-sky-100', fg: 'text-sky-600' }
 
   return (
-    <>
-      <section className="border-b border-[#f0f0f0] bg-white pt-24 pb-8">
-        <div className="mx-auto max-w-3xl px-5 lg:px-8">
-          <Link
-            href="/discussions"
-            className="mb-7 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft size={15} />
-            Thảo luận
-          </Link>
+    <div className="min-h-screen bg-white pt-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="flex gap-12">
 
-          <div className="flex items-start gap-5">
-            {/* Avatar */}
-            {post.photoURL && !post.isAnonymous ? (
-              <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl border border-border">
-                <Image src={post.photoURL} alt={post.author} fill className="object-cover" />
-              </div>
-            ) : (
-              <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/25 to-orange-200 text-lg font-extrabold text-primary">
-                {post.isAnonymous ? '?' : post.authorInitials}
-              </div>
-            )}
+          {/* Sidebar */}
+          <DiscussionsSidebar
+            activeCategory={null}
+            onCategoryChange={(cat) => router.push(cat ? `/discussions?category=${cat}` : '/discussions')}
+            onNewThread={() => requireAuth(() => router.push('/discussions/new'))}
+          />
 
-            <div className="flex-1 min-w-0">
-              {/* Tags */}
-              <div className="mb-3 flex flex-wrap gap-2">
-                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${catColor}`}>
-                  {post.category}
-                </span>
-                {post.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-500">
-                    {tag}
-                  </span>
-                ))}
-              </div>
+          {/* Main content */}
+          <div className="flex-1 min-w-0">
 
-              {/* Title */}
-              <h1
-                className="font-bold text-2xl md:text-3xl text-text-dark"
-                style={{ letterSpacing: '-0.02em', lineHeight: '1.25' }}
+        {/* ── Post ── */}
+        <div className="bg-white">
+
+          {/* Credit bar */}
+          <div className="flex items-start justify-between py-3">
+            {/* Left: back + icon + meta */}
+            <div className="flex items-start gap-2">
+              {/* Back button */}
+              <Link
+                href="/discussions"
+                className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+                aria-label="Quay lại"
               >
-                {post.title}
-              </h1>
+                <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.5 9.1H4.679l5.487-5.462a.898.898 0 00.003-1.272.898.898 0 00-1.272-.003l-7.032 7a.898.898 0 000 1.275l7.03 7a.896.896 0 001.273-.003.898.898 0 00-.002-1.272l-5.487-5.462h12.82a.9.9 0 000-1.8z" />
+                </svg>
+              </Link>
 
-              {post.description && (
-                <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-                  {post.description}
-                </p>
-              )}
+              {/* Category circle */}
+              <span className={cn('mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-bold', meta.bg, meta.fg)}>
+                {meta.slug[0].toUpperCase()}
+              </span>
 
-              {/* Author + vote row */}
-              <div className="mt-5 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2.5">
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-text-dark">
-                      {post.isAnonymous ? 'Ẩn danh' : post.author}
-                    </span>
-                    {' · '}{timeAgo(post.createdAt)}
-                    {' · '}{post.commentCount} bình luận
-                  </p>
+              {/* Subreddit name + time + author */}
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5 text-[13px]">
+                  <span className="font-bold text-gray-900">p/{meta.slug}</span>
+                  <span className="text-gray-300 text-xs">•</span>
+                  <time className="text-gray-500 text-[12px]">{timeAgo(post.createdAt)}</time>
                 </div>
-                <VoteButton count={post.upvoteCount} postId={post.id} size="lg" />
+                <div className="flex items-center gap-1 mt-0.5">
+                  {post.photoURL && !post.isAnonymous ? (
+                    <img
+                      src={post.photoURL}
+                      alt={post.author}
+                      className="h-3.5 w-3.5 flex-shrink-0 rounded-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-[7px] font-bold text-primary">
+                      {post.isAnonymous ? '?' : (post.authorInitials?.[0] ?? '?')}
+                    </span>
+                  )}
+                  <span className="text-[12px] text-gray-500">
+                    {post.isAnonymous ? 'Ẩn danh' : post.author}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="min-h-screen bg-[#fafafa] py-10">
-        <div className="mx-auto max-w-3xl px-5 lg:px-8">
+            {/* Right: overflow placeholder */}
+            <button className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors">
+              <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 11.75a1.75 1.75 0 11.001-3.501A1.75 1.75 0 0116 11.75zM11.75 10a1.75 1.75 0 10-3.501.001A1.75 1.75 0 0011.75 10zm-6 0a1.75 1.75 0 10-3.501.001A1.75 1.75 0 005.75 10z" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Title */}
+          <h1 className="mb-3 text-[22px] font-bold leading-snug text-gray-900">
+            {post.title}
+          </h1>
+
+          {/* Body */}
+          {post.description && (
+            <div
+              className="prosemirror-editor mb-4 text-[14px] leading-relaxed text-gray-800"
+              dangerouslySetInnerHTML={{ __html: post.description }}
+            />
+          )}
+
+          {/* Action bar */}
+          <div className="flex items-center gap-2 py-3">
+
+            {/* Vote group pill: ↑ count ↓ */}
+            <div className="flex items-center overflow-hidden rounded-full border border-gray-200 bg-white text-sm font-semibold text-gray-700">
+              <button
+                onClick={(e) => handleVote(e, 'up')}
+                disabled={voteLoading}
+                className={cn(
+                  'flex items-center gap-1 px-3 py-1.5 transition-colors disabled:opacity-50 hover:bg-gray-50',
+                  userVote === 'up' && 'text-primary',
+                )}
+              >
+                {/* Upvote arrow */}
+                <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                  {userVote === 'up'
+                    ? <path d="M10 19a3.966 3.966 0 01-3.96-3.962V10.98H2.838a1.731 1.731 0 01-1.605-1.073 1.734 1.734 0 01.377-1.895L9.364.254a.925.925 0 011.272 0l7.754 7.759c.498.499.646 1.242.376 1.894-.27.652-.9 1.073-1.605 1.073h-3.202v4.058A3.965 3.965 0 019.999 19H10z" />
+                    : <path d="M10 19a3.966 3.966 0 01-3.96-3.962V10.98H2.838a1.731 1.731 0 01-1.605-1.073 1.734 1.734 0 01.377-1.895L9.364.254a.925.925 0 011.272 0l7.754 7.759c.498.499.646 1.242.376 1.894-.27.652-.9 1.073-1.605 1.073h-3.202v4.058A3.965 3.965 0 019.999 19H10zM2.989 9.179H7.84v5.731c0 1.13.81 2.163 1.934 2.278a2.163 2.163 0 002.386-2.15V9.179h4.851L10 2.163 2.989 9.179z" />
+                  }
+                </svg>
+                <span className={cn(
+                  userVote === 'up' ? 'text-primary' : userVote === 'down' ? 'text-red-500' : '',
+                )}>{voteCount}</span>
+              </button>
+
+              {/* Divider */}
+              <span className="h-5 w-px bg-gray-200" />
+
+              {/* Downvote */}
+              <button
+                onClick={(e) => handleVote(e, 'down')}
+                disabled={voteLoading}
+                className={cn(
+                  'flex items-center px-3 py-1.5 transition-colors disabled:opacity-50 hover:bg-gray-50',
+                  userVote === 'down' ? 'text-red-500' : 'text-gray-400',
+                )}
+              >
+                <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                  {userVote === 'down'
+                    ? <path d="M10 1a3.966 3.966 0 013.96 3.962V9.02h3.202c.706 0 1.335.42 1.605 1.073.27.652.122 1.396-.377 1.895l-7.754 7.759a.925.925 0 01-1.272 0l-7.754-7.76a1.734 1.734 0 01-.376-1.894c.27-.652.9-1.073 1.605-1.073h3.202V4.962A3.965 3.965 0 0110 1z" />
+                    : <path d="M10 1a3.966 3.966 0 013.96 3.962V9.02h3.202c.706 0 1.335.42 1.605 1.073.27.652.122 1.396-.377 1.895l-7.754 7.759a.925.925 0 01-1.272 0l-7.754-7.76a1.734 1.734 0 01-.376-1.894c.27-.652.9-1.073 1.605-1.073h3.202V4.962A3.965 3.965 0 0110 1zm7.01 9.82h-4.85V5.09c0-1.13-.81-2.163-1.934-2.278a2.163 2.163 0 00-2.386 2.15v5.859H2.989l7.01 7.016 7.012-7.016z" />
+                  }
+                </svg>
+              </button>
+            </div>
+
+            {/* Comments pill */}
+            <a
+              href="#comments"
+              className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 1a9 9 0 00-9 9c0 1.947.79 3.58 1.935 4.957L.231 17.661A.784.784 0 00.785 19H10a9 9 0 009-9 9 9 0 00-9-9zm0 16.2H6.162c-.994.004-1.907.053-3.045.144l-.076-.188a36.981 36.981 0 002.328-2.087l-1.05-1.263C3.297 12.576 2.8 11.331 2.8 10c0-3.97 3.23-7.2 7.2-7.2s7.2 3.23 7.2 7.2-3.23 7.2-7.2 7.2z" />
+              </svg>
+              <span>{post.commentCount}</span>
+            </a>
+
+            {/* Share pill */}
+            <button className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50">
+              <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.8 17.524l6.89-6.887a.9.9 0 000-1.273L12.8 2.477a1.64 1.64 0 00-1.782-.349 1.64 1.64 0 00-1.014 1.518v2.593C4.054 6.728 1.192 12.075 1 17.376a1.353 1.353 0 00.862 1.32 1.35 1.35 0 001.531-.364l.334-.381c1.705-1.944 3.323-3.791 6.277-4.103v2.509c0 .667.398 1.262 1.014 1.518a1.638 1.638 0 001.783-.349v-.002zm-.994-1.548V12h-.9c-3.969 0-6.162 2.1-8.001 4.161.514-4.011 2.823-8.16 8-8.16h.9V4.024L17.784 10l-5.977 5.976z" />
+              </svg>
+              <span>Share</span>
+            </button>
+
+          </div>
+
+          <div className="border-t border-[#f0f0f0]" />
+        </div>
+
+        {/* ── Comments ── */}
+        <div id="comments" className="bg-white pt-6 pb-16">
           <CommentSection postId={post.id} />
         </div>
-      </section>
-    </>
+
+          </div>{/* end main content */}
+        </div>{/* end flex */}
+      </div>
+    </div>
   )
 }
