@@ -31,7 +31,7 @@ export function Hero() {
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-border" />
 
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8 pt-32 pb-20 lg:pt-40 lg:pb-28">
-        <div className="grid items-center gap-16 lg:grid-cols-2">
+        <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.4fr] xl:gap-20">
 
           {/* Left — staggered entrance */}
           <motion.div variants={container} initial="hidden" animate="show">
@@ -89,7 +89,7 @@ export function Hero() {
 
           {/* Right — slide in */}
           <motion.div
-            className="relative hidden lg:block"
+            className="relative hidden lg:block xl:-mr-16 xl:mt-12 xl:ml-8"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: EASE_OUT_EXPO }}
@@ -99,10 +99,10 @@ export function Hero() {
 
             <div className="relative overflow-hidden rounded-2xl border border-border shadow-2xl">
               <Image
-                src="/images/team.png"
+                src="/images/team-building.jpg"
                 alt="Đội ngũ SoftDreams làm việc tại văn phòng"
-                width={720}
-                height={560}
+                width={920}
+                height={640}
                 priority
                 className="h-full w-full object-cover"
               />
