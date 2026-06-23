@@ -90,7 +90,7 @@ export default function DiscussionsPage() {
                   className="flex flex-shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-md hover:shadow-primary/30"
                 >
                   <Plus size={15} strokeWidth={2.5} />
-                  Start new thread
+                  Tạo bài viết
                 </button>
               </div>
 
@@ -147,7 +147,7 @@ export default function DiscussionsPage() {
                     onClick={openNewThread}
                     className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
                   >
-                    <Plus size={15} /> Start new thread
+                    <Plus size={15} /> Tạo bài viết
                   </button>
                 </div>
               ) : (

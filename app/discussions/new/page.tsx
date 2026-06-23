@@ -90,7 +90,7 @@ export default function NewPostPage() {
           {/* Form */}
           <div className="flex-1 min-w-0 pb-20">
             <h1 className="mb-8 text-2xl font-bold text-gray-900" style={{ letterSpacing: '-0.02em' }}>
-              Start new thread
+              Tạo bài viết
             </h1>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">

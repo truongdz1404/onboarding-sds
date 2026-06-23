@@ -10,6 +10,7 @@ type Product = {
   category: string
   desc: string
   icon: string
+  href: string
   featured: boolean
 }
 
@@ -19,6 +20,7 @@ const products: Product[] = [
     category: 'Hóa đơn điện tử',
     desc: 'Phát hành & quản lý hóa đơn điện tử tuân thủ quy định thuế.',
     icon: '/images/products/easyinvoice.png',
+    href: 'https://easyinvoice.vn/',
     featured: true,
   },
   {
@@ -26,6 +28,7 @@ const products: Product[] = [
     category: 'Phần mềm kế toán',
     desc: 'Quản lý sổ sách, báo cáo tài chính nhanh chóng và chính xác.',
     icon: '/images/products/easybooks.png',
+    href: 'https://easybooks.vn/',
     featured: false,
   },
   {
@@ -33,6 +36,7 @@ const products: Product[] = [
     category: 'Chữ ký số',
     desc: 'Giải pháp chữ ký số an toàn cho doanh nghiệp & cá nhân.',
     icon: '/images/products/easyca.png',
+    href: 'https://easyca.vn/',
     featured: true,
   },
   {
@@ -40,6 +44,7 @@ const products: Product[] = [
     category: 'Quản lý bán hàng',
     desc: 'Quản lý bán hàng đa kênh, tồn kho và doanh thu real-time.',
     icon: '/images/products/easypos.png',
+    href: 'https://easypos.vn/',
     featured: false,
   },
   {
@@ -47,6 +52,7 @@ const products: Product[] = [
     category: 'Hợp đồng điện tử',
     desc: 'Ký kết & lưu trữ hợp đồng điện tử có giá trị pháp lý.',
     icon: '/images/products/easydocs.png',
+    href: 'https://easydocs.vn/',
     featured: true,
   },
   {
@@ -54,6 +60,7 @@ const products: Product[] = [
     category: 'Quản lý nhân sự',
     desc: 'Chấm công, tính lương, quản lý nhân sự toàn diện.',
     icon: '/images/products/easyhrm.png',
+    href: 'https://easyhrm.vn/',
     featured: false,
   },
 ]
@@ -107,10 +114,15 @@ function FlipCard({ product, index }: { product: Product; index: number }) {
               {product.desc}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+          <a
+            href={product.href}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition hover:gap-2 hover:text-primary/80"
+          >
             Tìm hiểu thêm
             <ArrowRight size={16} />
-          </span>
+          </a>
         </div>
       </div>
     </motion.div>
