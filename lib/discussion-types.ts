@@ -21,6 +21,9 @@ export type DiscussionPost = {
   isSaved?: boolean
 }
 
+
+
+
 export type DiscussionComment = {
   id: string
   postId: string
