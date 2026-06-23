@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { MapPin, Navigation, Copy, Check, Building2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { MapPin, Navigation, Copy, Check, Building2, Maximize2, Minimize2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FadeUp } from '@/components/shared/fade-up'
 import { SectionHeader } from '@/components/shared/section-header'
@@ -27,20 +27,46 @@ const LOCATIONS = [
 export default function OfficePage() {
   const [active, setActive] = useState(LOCATIONS[0].id)
   const [copied, setCopied] = useState(false)
+  const [isPanoeeFullscreen, setIsPanoeeFullscreen] = useState(false)
+  const panoeeViewerRef = useRef<HTMLDivElement>(null)
   const loc = LOCATIONS.find((l) => l.id === active)!
 
   const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(
     loc.query,
   )}&t=&z=15&ie=UTF8&iwloc=&output=embed`
-  const streetSrc = `https://maps.google.com/maps?q=${encodeURIComponent(
-    loc.query,
-  )}&t=k&z=17&ie=UTF8&iwloc=&output=embed`
+  const panoeeSrc =
+    'https://tour.panoee.net/6a3810916e5528e87da41b51/panorama_27b67634095b49ae98f4d568dba4183a-1'
 
   const copyAddress = async () => {
     try {
       await navigator.clipboard.writeText(loc.address)
       setCopied(true)
       setTimeout(() => setCopied(false), 1800)
+    } catch {
+      // ignore
+    }
+  }
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsPanoeeFullscreen(document.fullscreenElement === panoeeViewerRef.current)
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    }
+  }, [])
+
+  const togglePanoeeFullscreen = async () => {
+    try {
+      if (document.fullscreenElement === panoeeViewerRef.current) {
+        await document.exitFullscreen()
+        return
+      }
+
+      await panoeeViewerRef.current?.requestFullscreen()
     } catch {
       // ignore
     }
@@ -90,15 +116,31 @@ export default function OfficePage() {
       {/* Aerial / 360 viewer */}
       <section className="bg-white py-14">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="overflow-hidden rounded-2xl border border-border shadow-xl">
+          <div
+            ref={panoeeViewerRef}
+            className="relative overflow-hidden rounded-2xl border border-border bg-black shadow-xl"
+          >
             <iframe
-              key={`view-${active}`}
-              title={`Toàn cảnh khu vực ${loc.label}`}
-              src={streetSrc}
-              className="h-[420px] w-full md:h-[560px]"
+              title="Tour 360 văn phòng"
+              src={panoeeSrc}
+              className={cn(
+                'block w-full',
+                isPanoeeFullscreen ? 'h-screen' : 'h-[420px] md:h-[560px]',
+              )}
               loading="lazy"
+              allow="accelerometer; gyroscope; autoplay; fullscreen; xr-spatial-tracking"
+              allowFullScreen
               referrerPolicy="no-referrer-when-downgrade"
             />
+            <button
+              type="button"
+              onClick={togglePanoeeFullscreen}
+              title={isPanoeeFullscreen ? 'Thu nhỏ' : 'Mở toàn màn hình'}
+              aria-label={isPanoeeFullscreen ? 'Thu nhỏ tour 360' : 'Mở tour 360 toàn màn hình'}
+              className="absolute bottom-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-lg bg-white/95 text-text-dark shadow-lg shadow-black/20 ring-1 ring-black/10 backdrop-blur transition hover:bg-white hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            >
+              {isPanoeeFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+            </button>
           </div>
         </div>
       </section>
