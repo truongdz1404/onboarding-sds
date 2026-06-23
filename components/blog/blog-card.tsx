@@ -2,42 +2,46 @@
 
 import { motion } from 'motion/react'
 import { Clock, Eye, FileText } from 'lucide-react'
+import Link from 'next/link'
 import type { Post } from '@/lib/blog-data'
 
 export function BlogCard({ post, index }: { post: Post; index: number }) {
   return (
-    <motion.article
+    <motion.div
       layout
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.05 }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
     >
-      {/* Cover block */}
-      <div className="relative flex h-40 items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(232,96,26,0.06) 0%, rgba(244,148,74,0.10) 100%)' }}>
-        <FileText size={56} className="text-primary/20" strokeWidth={1.5} />
-        <span className="eyebrow absolute left-4 top-4 rounded-md bg-primary px-2.5 py-1 text-white">
-          {post.category}
-        </span>
-      </div>
-
-      <div className="flex flex-1 flex-col p-6">
-        <h3 className="line-clamp-2 text-lg font-bold leading-snug tracking-tight text-text-dark transition-colors group-hover:text-primary">
-          {post.title}
-        </h3>
-        <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">
-          {post.excerpt}
-        </p>
-        <div className="mt-4 flex items-center gap-4 border-t border-primary/12 pt-4 text-sm font-semibold text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Clock size={14} /> {post.readTime}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Eye size={14} /> {post.views}
+      <Link
+        href={`/blog/${post.slug}`}
+        className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      >
+        <div className="relative flex h-40 items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(232,96,26,0.06) 0%, rgba(244,148,74,0.10) 100%)' }}>
+          <FileText size={56} className="text-primary/20" strokeWidth={1.5} />
+          <span className="eyebrow absolute left-4 top-4 rounded-md bg-primary px-2.5 py-1 text-white">
+            {post.category}
           </span>
         </div>
-      </div>
-    </motion.article>
+
+        <div className="flex flex-1 flex-col p-6">
+          <h3 className="line-clamp-2 text-lg font-bold leading-snug tracking-tight text-text-dark transition-colors group-hover:text-primary">
+            {post.title}
+          </h3>
+          <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+            {post.excerpt}
+          </p>
+          <div className="mt-4 flex items-center gap-4 border-t border-primary/12 pt-4 text-sm font-semibold text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Clock size={14} /> {post.readTime}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Eye size={14} /> {post.views}
+            </span>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
   )
 }

@@ -5,7 +5,7 @@ import type { Post } from '@/lib/blog-data'
 export function BlogSuggestion({ post }: { post: Post }) {
   return (
     <Link
-      href={`/blog?post=${post.slug}`}
+      href={`/blog/${post.slug}`}
       className="group mt-2 flex items-start gap-3 rounded-xl border border-border bg-white p-3 transition-colors hover:border-primary/30 hover:bg-surface-orange/50"
     >
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">

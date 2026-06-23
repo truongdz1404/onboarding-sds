@@ -12,32 +12,29 @@ export default function BlogPage() {
   const [filter, setFilter] = useState('Tất cả')
 
   const visible =
-    filter === 'Tất cả' ? POSTS : POSTS.filter((p) => p.category === filter)
+    filter === 'Tất cả' ? POSTS : POSTS.filter((post) => post.category === filter)
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-white pt-28 pb-14 border-b border-border">
-        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-primary/8 blur-[100px]" />
+      <section className="relative overflow-hidden border-b border-border bg-white pt-28 pb-14">
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/8 blur-[100px]" />
         <div className="pointer-events-none absolute top-10 right-0 h-72 w-72 rounded-full bg-amber-400/8 blur-[80px]" />
         <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <span className="block h-px w-8 bg-primary shrink-0" />
+          <div className="mb-6 inline-flex items-center gap-3">
+            <span className="block h-px w-8 shrink-0 bg-primary" />
             <span className="eyebrow text-primary">Blog nội bộ</span>
           </div>
-          <h1 className="max-w-3xl text-balance font-extrabold text-5xl md:text-6xl text-text-dark" style={{ letterSpacing: '-0.04em', lineHeight: '0.9' }}>
+          <h1 className="max-w-3xl text-balance text-5xl font-extrabold text-text-dark md:text-6xl" style={{ lineHeight: '0.9' }}>
             Kiến thức <span className="gradient-text">thực chiến</span> từ đội ngũ SoftDreams
           </h1>
           <p className="mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground">
-            Hướng dẫn, mẹo và quy trình được biên soạn bởi chính các thành viên
-            — giúp bạn hội nhập nhanh và làm việc hiệu quả.
+            Hướng dẫn, mẹo và quy trình được biên soạn bởi chính các thành viên giúp bạn hội nhập nhanh và làm việc hiệu quả.
           </p>
         </div>
       </section>
 
       <section className="bg-surface-white py-14">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          {/* Filter tabs */}
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => {
               const active = filter === cat
@@ -50,7 +47,7 @@ export default function BlogPage() {
                     'rounded-xl px-4 py-2 text-sm font-semibold transition-colors',
                     active
                       ? 'bg-primary text-white'
-                      : 'bg-white text-foreground border border-border hover:bg-surface-orange',
+                      : 'border border-border bg-white text-foreground hover:bg-surface-orange',
                   )}
                 >
                   {cat}
@@ -59,20 +56,19 @@ export default function BlogPage() {
             })}
           </div>
 
-          {/* Featured */}
-          <div className="relative mt-10 overflow-hidden rounded-xl bg-white border border-primary/20 p-8 md:p-10">
+          <div className="relative mt-10 overflow-hidden rounded-xl border border-primary/20 bg-white p-8 md:p-10">
             <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary/5" />
-            <div className="pointer-events-none absolute bottom-0 right-1/4 h-32 w-32 rotate-45 bg-primary/3" />
+            <div className="pointer-events-none absolute right-1/4 bottom-0 h-32 w-32 rotate-45 bg-primary/3" />
             <div className="relative grid items-center gap-8 md:grid-cols-2">
               <div>
-                <div className="inline-flex items-center gap-2 mb-4">
-                  <span className="block h-px w-6 bg-primary shrink-0" />
+                <div className="mb-4 inline-flex items-center gap-2">
+                  <span className="block h-px w-6 shrink-0 bg-primary" />
                   <span className="eyebrow text-primary">Nổi bật</span>
                 </div>
-                <h2 className="text-balance font-extrabold text-3xl text-text-dark" style={{ letterSpacing: '-0.03em' }}>
+                <h2 className="text-balance text-3xl font-extrabold text-text-dark">
                   {FEATURED.title}
                 </h2>
-                <p className="mt-3 text-muted-foreground leading-relaxed">
+                <p className="mt-3 leading-relaxed text-muted-foreground">
                   {FEATURED.excerpt}
                 </p>
                 <div className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
@@ -84,15 +80,12 @@ export default function BlogPage() {
                     <div>{FEATURED.readTime} đọc · {FEATURED.views} lượt xem</div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  className="btn-primary mt-7 !h-12"
-                >
+                <Link href={`/blog/${FEATURED.slug}`} className="btn-primary mt-7 !h-12">
                   Đọc bài viết
                   <ArrowRight size={18} />
-                </button>
+                </Link>
               </div>
-              <div className="hidden md:flex items-center justify-center">
+              <div className="hidden items-center justify-center md:flex">
                 <div className="grid grid-cols-3 gap-3">
                   {Array.from({ length: 9 }).map((_, i) => (
                     <span
@@ -112,7 +105,6 @@ export default function BlogPage() {
             </div>
           </div>
 
-          {/* Grid */}
           <motion.div layout className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
               {visible.map((post, i) => (
