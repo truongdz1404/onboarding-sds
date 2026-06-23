@@ -1,4 +1,3 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -6,7 +5,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ['firebase-admin'],
+  serverExternalPackages: [
+    'firebase-admin',
+    'firebase-admin/app',
+    'firebase-admin/auth',
+    'firebase-admin/firestore',
+    'firebase-admin/storage',
+    'jwks-rsa',
+    'jose',
+  ],
 }
 
 export default nextConfig
