@@ -14,7 +14,7 @@ const values = [
 
 export function MissionVision() {
   return (
-    <section className="bg-surface-alt py-24">
+    <section className="bg-[#f7f5f1] py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="Kim chỉ nam"
@@ -25,13 +25,13 @@ export function MissionVision() {
           {/* Mission — cam đậm */}
           <FadeUp>
             <motion.article
-              className="flex h-full flex-col gap-5 rounded-3xl bg-white border-2 border-primary p-8"
+              className="flex h-full flex-col gap-5 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/6"
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
+              <span className="inline-flex items-center rounded-full bg-[#f7f5f1] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Sứ mệnh
               </span>
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#f7f5f1]">
                 <Target size={28} className="text-primary" strokeWidth={2} />
               </div>
               <p className="text-2xl font-extrabold leading-snug text-text-dark" style={{ letterSpacing: '-0.02em' }}>
@@ -44,13 +44,13 @@ export function MissionVision() {
           {/* Vision — cam nhạt */}
           <FadeUp delay={0.08}>
             <motion.article
-              className="flex h-full flex-col gap-5 rounded-3xl bg-white border border-border shadow-sm p-8"
+              className="flex h-full flex-col gap-5 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/6"
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
+              <span className="inline-flex items-center rounded-full bg-[#f7f5f1] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Tầm nhìn
               </span>
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#f7f5f1]">
                 <Eye size={28} className="text-primary" strokeWidth={2} />
               </div>
               <p className="text-2xl font-bold leading-snug tracking-tight text-text-dark">
@@ -62,10 +62,10 @@ export function MissionVision() {
           {/* Values — trắng viền cam */}
           <FadeUp delay={0.16}>
             <motion.article
-              className="flex h-full flex-col gap-5 rounded-3xl border-l-4 border-primary bg-surface-orange p-8 shadow-sm"
+              className="flex h-full flex-col gap-5 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/6"
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
+              <span className="inline-flex items-center rounded-full bg-[#f7f5f1] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Giá trị cốt lõi
               </span>
               <div className="flex flex-col gap-4">

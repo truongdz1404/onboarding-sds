@@ -24,30 +24,20 @@ const item = {
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-surface-alt">
+    <section className="relative overflow-hidden bg-[#f7f5f1]">
       {/* Glow orbs */}
-      <div className="pointer-events-none absolute -top-60 left-1/2 -translate-x-1/3 h-[700px] w-[700px] rounded-full bg-primary/10 blur-[120px]" />
-      <div className="pointer-events-none absolute top-40 -right-20 h-72 w-72 rounded-full bg-amber-400/10 blur-[80px]" />
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-border" />
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-black/8" />
 
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8 pt-32 pb-20 lg:pt-40 lg:pb-28">
-        <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.4fr] xl:gap-20">
+        <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.3fr] xl:gap-20">
 
           {/* Left — staggered entrance */}
           <motion.div variants={container} initial="hidden" animate="show">
 
             {/* Glassmorphism badge */}
-              <motion.div
-              variants={item}
-              className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-4 py-2 mb-10"
-            >
-              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <span className="eyebrow text-primary">Onboarding Hub · SoftDreams</span>
-            </motion.div>
-
             <motion.h1 variants={item} className="hero-title text-text-dark text-balance">
               Chào mừng bạn đến{' '}
-              <span className="gradient-text">gia đình SD</span>
+              <span className="text-primary">gia đình SDS</span>
             </motion.h1>
 
             <motion.p
@@ -89,15 +79,12 @@ export function Hero() {
 
           {/* Right — slide in */}
           <motion.div
-            className="relative hidden lg:block xl:-mr-16 xl:mt-12 xl:ml-8"
+            className="relative hidden lg:block xl:-mr-16 xl:mt-8 xl:ml-8"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: EASE_OUT_EXPO }}
           >
-            {/* Glow behind image */}
-            <div className="absolute inset-0 -m-4 rounded-3xl bg-primary/8 blur-3xl" />
-
-            <div className="relative overflow-hidden rounded-2xl border border-border shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-white shadow-[0_30px_80px_rgba(15,23,42,0.14)] ring-1 ring-black/8">
               <Image
                 src="/images/team-building.jpg"
                 alt="Đội ngũ SoftDreams làm việc tại văn phòng"
@@ -109,12 +96,12 @@ export function Hero() {
             </div>
 
             <motion.div
-              className="absolute -bottom-4 -left-5 flex items-center gap-3 rounded-2xl bg-white border border-border px-5 py-3 shadow-xl"
+              className="absolute -bottom-4 -left-5 flex items-center gap-3 rounded-2xl bg-white px-5 py-3 shadow-xl ring-1 ring-black/8"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.7, ease: EASE_OUT_EXPO }}
             >
-              <span className="text-xl font-extrabold gradient-text">Est. 2012</span>
+              <span className="text-xl font-extrabold text-primary">Est. 2012</span>
               <span className="text-sm text-muted-foreground">· Make IT Simple</span>
             </motion.div>
           </motion.div>

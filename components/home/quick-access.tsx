@@ -12,28 +12,24 @@ const items = [
     title: 'Về SoftDreams',
     desc: 'Lịch sử, sứ mệnh, cơ cấu tổ chức',
     href: '/#timeline',
-    bg: 'bg-[#ccdaff]',
   },
   {
     icon: Target,
     title: 'Văn hóa & Nội quy',
     desc: 'Cách chúng ta làm việc cùng nhau',
     href: '/culture',
-    bg: 'bg-[#cbc3ff]',
   },
   {
     icon: FileText,
     title: 'Blog nội bộ',
     desc: 'Hướng dẫn thực chiến từ đội ngũ',
     href: '/blog',
-    bg: 'bg-[#ceffbd]',
   },
   {
     icon: MapPin,
     title: 'Văn phòng 360°',
     desc: 'Tour ảo không gian làm việc',
     href: '/office',
-    bg: 'bg-[#ffb99b]',
   },
 ]
 
@@ -71,7 +67,7 @@ export function QuickAccess() {
             >
               <Link
                 href={item.href}
-                className={`group flex h-full flex-col gap-4 rounded-3xl ${item.bg} border-0 p-7 transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5`}
+                className="group flex h-full flex-col gap-4 rounded-2xl bg-[#f7f5f1] p-7 ring-1 ring-black/6 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_45px_rgba(15,23,42,0.08)]"
               >
                 <IconBox icon={item.icon} variant="muted" />
                 <h3 className="text-xl font-bold tracking-tight text-text-dark">
@@ -80,7 +76,7 @@ export function QuickAccess() {
                 <p className="text-sm text-foreground/60 leading-relaxed flex-1">
                   {item.desc}
                 </p>
-                <span className="inline-flex items-center gap-1 text-sm font-semibold text-foreground/80">
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
                   Xem ngay
                   <ArrowRight
                     size={16}
