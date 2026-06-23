@@ -8,7 +8,7 @@ __v0_jsx-dev-runtime.ts
 
 # Environment variables
 .env*.local
-
+.env
 # Firebase service account keys — NEVER commit these
 *firebase-adminsdk*.json
 *service-account*.json
