@@ -98,6 +98,14 @@ export default function ProfilePageClient() {
     setPosts((prev) => prev.filter((p) => p.id !== postId))
   }
 
+  function handlePostUnarchived(postId: string) {
+    setPosts((prev) => prev.filter((p) => p.id !== postId))
+  }
+
+  function handlePostHidden(postId: string) {
+    setPosts((prev) => prev.filter((p) => p.id !== postId))
+  }
+
   function handlePostPublished(postId: string) {
     setPosts((prev) =>
       prev.map((p) => p.id === postId ? { ...p, status: 'pending' } : p)
@@ -186,6 +194,8 @@ export default function ProfilePageClient() {
                     post={post}
                     userVote={post.userVote ?? null}
                     onArchived={() => handlePostArchived(post.id)}
+                    onUnarchived={() => handlePostUnarchived(post.id)}
+                    onHidden={() => handlePostHidden(post.id)}
                     onPublished={() => handlePostPublished(post.id)}
                   />
                 ))}

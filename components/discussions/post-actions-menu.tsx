@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Bookmark, Archive, Send } from 'lucide-react'
+import { Bookmark, Archive, Send, EyeOff, RotateCcw } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAuth } from '@/lib/auth-context'
 import { ConfirmDialog } from './confirm-dialog'
 import { cn } from '@/lib/utils'
@@ -16,8 +17,12 @@ interface PostActionsMenuProps {
   creatorUid?: string
   initialSaved?: boolean
   isDraft?: boolean
+  isArchived?: boolean
+  isHiddenByMod?: boolean
   onSavedChange?: (saved: boolean) => void
   onArchived?: () => void
+  onUnarchived?: () => void
+  onHidden?: () => void
   onPublished?: () => void
   className?: string
   align?: 'left' | 'right'
@@ -28,22 +33,29 @@ export function PostActionsMenu({
   creatorUid,
   initialSaved = false,
   isDraft = false,
+  isArchived = false,
+  isHiddenByMod = false,
   onSavedChange,
   onArchived,
+  onUnarchived,
+  onHidden,
   onPublished,
   className,
   align = 'right',
 }: PostActionsMenuProps) {
-  const { user, requireAuth } = useAuth()
+  const { user, requireAuth, userRole } = useAuth()
   const [open, setOpen] = useState(false)
   const [saved, setSaved] = useState(initialSaved)
   const [saveLoading, setSaveLoading] = useState(false)
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [archiveLoading, setArchiveLoading] = useState(false)
+  const [unarchiveLoading, setUnarchiveLoading] = useState(false)
+  const [hideLoading, setHideLoading] = useState(false)
   const [publishLoading, setPublishLoading] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   const isCreator = !!user && !!creatorUid && user.uid === creatorUid
+  const isMod = userRole === 'moderator' || userRole === 'admin'
 
   useEffect(() => { setSaved(initialSaved) }, [initialSaved])
 
@@ -93,6 +105,41 @@ export function PostActionsMenu({
     }
   }
 
+  async function handleUnarchive() {
+    if (unarchiveLoading) return
+    setUnarchiveLoading(true)
+    setOpen(false)
+    try {
+      const token = await getIdToken()
+      const res = await fetch(`/api/discussions/${postId}/archive`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (res.ok) onUnarchived?.()
+    } finally {
+      setUnarchiveLoading(false)
+    }
+  }
+
+  async function handleHide() {
+    if (hideLoading) return
+    setHideLoading(true)
+    setOpen(false)
+    try {
+      const token = await getIdToken()
+      const res = await fetch(`/api/discussions/${postId}/hide`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (res.ok) {
+        toast.success('Đã ẩn bài viết')
+        onHidden?.()
+      }
+    } finally {
+      setHideLoading(false)
+    }
+  }
+
   async function handlePublish() {
     if (publishLoading) return
     setPublishLoading(true)
@@ -137,9 +184,10 @@ export function PostActionsMenu({
 
         {open && (
           <div className={cn(
-            'absolute top-full z-50 mt-1 min-w-[180px] overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-xl',
+            'absolute top-full z-50 mt-1 min-w-[188px] overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-xl',
             align === 'right' ? 'right-0' : 'left-0',
           )}>
+            {/* Publish draft */}
             {isCreator && isDraft && (
               <button
                 onClick={(e) => { e.stopPropagation(); handlePublish() }}
@@ -150,7 +198,9 @@ export function PostActionsMenu({
                 Đăng bài
               </button>
             )}
-            {!isDraft && (
+
+            {/* Save / Unsave */}
+            {!isDraft && !isArchived && !isHiddenByMod && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleSaveClick() }}
                 disabled={saveLoading}
@@ -160,13 +210,55 @@ export function PostActionsMenu({
                 {saved ? 'Bỏ lưu' : 'Lưu'}
               </button>
             )}
-            {isCreator && !isDraft && (
+
+            {/* Unarchive — creator restores their own archived post */}
+            {isCreator && isArchived && (
+              <button
+                onClick={(e) => { e.stopPropagation(); handleUnarchive() }}
+                disabled={unarchiveLoading}
+                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-green-700 hover:bg-green-50 disabled:opacity-50"
+              >
+                <RotateCcw size={15} />
+                Hiển thị lại
+              </button>
+            )}
+
+            {/* Cannot restore — admin-hidden post (creator sees disabled button) */}
+            {isCreator && isHiddenByMod && (
+              <div className="group relative">
+                <button
+                  disabled
+                  className="flex w-full cursor-not-allowed items-center gap-2.5 px-4 py-2.5 text-left text-sm text-gray-400"
+                >
+                  <RotateCcw size={15} />
+                  Hiển thị lại
+                </button>
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 hidden w-56 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-center text-[11px] leading-snug text-white shadow-lg group-hover:block">
+                  Bài viết có nội dung vi phạm không thể hiển thị lại
+                </div>
+              </div>
+            )}
+
+            {/* Archive — creator hides their own post */}
+            {isCreator && !isDraft && !isArchived && !isHiddenByMod && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleArchiveClick() }}
                 className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
               >
                 <Archive size={15} />
                 Lưu trữ
+              </button>
+            )}
+
+            {/* Hide — mod/admin hides any post */}
+            {isMod && !isHiddenByMod && !isDraft && (
+              <button
+                onClick={(e) => { e.stopPropagation(); handleHide() }}
+                disabled={hideLoading}
+                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+              >
+                <EyeOff size={15} />
+                Ẩn bài viết
               </button>
             )}
           </div>
@@ -176,7 +268,7 @@ export function PostActionsMenu({
       <ConfirmDialog
         open={archiveOpen}
         title="Lưu trữ bài viết?"
-        message="Bài viết sẽ được ẩn khỏi diễn đàn và chuyển vào mục «Đã ẩn» trong hồ sơ của bạn. Bạn vẫn có thể xem lại sau. Hành động này không thể hoàn tác dễ dàng."
+        message="Bài viết sẽ được ẩn khỏi diễn đàn và chuyển vào mục «Đã ẩn» trong hồ sơ của bạn. Bạn vẫn có thể xem lại sau."
         confirmLabel="Lưu trữ"
         cancelLabel="Huỷ"
         destructive

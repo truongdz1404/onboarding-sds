@@ -6,11 +6,20 @@ import { PostCard } from './post-card'
 import type { DiscussionPost } from '@/lib/discussion-types'
 import { cn } from '@/lib/utils'
 
-type ModerationTab = 'pending' | 'approved'
+type ModerationTab = 'pending' | 'approved' | 'hidden'
 
 async function getIdToken() {
   const { auth } = await import('@/lib/firebase-client')
   return auth.currentUser?.getIdToken() ?? null
+}
+
+async function unhidePost(postId: string) {
+  const { auth } = await import('@/lib/firebase-client')
+  const token = await auth.currentUser?.getIdToken() ?? null
+  return fetch(`/api/discussions/${postId}/hide`, {
+    method: 'DELETE',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
 }
 
 export function ModerationView() {
@@ -88,7 +97,7 @@ export function ModerationView() {
 
       {/* Tabs */}
       <div className="relative mb-0 flex items-center border-b border-[#f0f0f0] pb-0">
-        {(['pending', 'approved'] as const).map((t) => (
+        {(['pending', 'approved', 'hidden'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -99,7 +108,7 @@ export function ModerationView() {
                 : 'border-transparent text-[#6b7280] hover:text-[#374151]',
             )}
           >
-            {t === 'pending' ? 'Chờ phê duyệt' : 'Đã phê duyệt'}
+            {t === 'pending' ? 'Chờ phê duyệt' : t === 'approved' ? 'Đã phê duyệt' : 'Đã ẩn'}
           </button>
         ))}
         {!loading && (
@@ -116,9 +125,13 @@ export function ModerationView() {
         </div>
       ) : posts.length === 0 ? (
         <div className="py-28 text-center">
-          <p className="mb-3 text-5xl">{tab === 'pending' ? '😿' : '📋'}</p>
+          <p className="mb-3 text-5xl">{tab === 'pending' ? '😿' : tab === 'hidden' ? '🙈' : '📋'}</p>
           <p className="text-xl font-bold text-[#1f2937]">
-            {tab === 'pending' ? 'Không có bài nào chờ duyệt' : 'Chưa có bài nào được duyệt'}
+            {tab === 'pending'
+              ? 'Không có bài nào chờ duyệt'
+              : tab === 'hidden'
+              ? 'Không có bài nào đang bị ẩn'
+              : 'Chưa có bài nào được duyệt'}
           </p>
         </div>
       ) : (
@@ -126,7 +139,32 @@ export function ModerationView() {
           <div>
             {posts.map((post) => (
               <div key={post.id} className="relative">
-                <PostCard post={post} userVote={post.userVote ?? null} />
+                <PostCard
+                  post={post}
+                  userVote={post.userVote ?? null}
+                  extraAction={tab === 'hidden' ? (
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        setActionLoading(post.id)
+                        const res = await unhidePost(post.id)
+                        if (res.ok) setPosts((prev) => prev.filter((p) => p.id !== post.id))
+                        setActionLoading(null)
+                      }}
+                      disabled={actionLoading === post.id}
+                      className="flex items-center gap-1.5 rounded-full bg-green-50 px-4 py-1.5 text-xs font-semibold text-green-700 border border-green-200 hover:bg-green-100 transition-colors disabled:opacity-50"
+                    >
+                      {actionLoading === post.id ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-3.5">
+                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                      )}
+                      Hiển thị lại
+                    </button>
+                  ) : undefined}
+                />
                 {tab === 'pending' && (
                   <div className="flex items-center gap-2 px-4 pb-3 -mt-1">
                     <button

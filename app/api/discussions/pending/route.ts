@@ -30,9 +30,9 @@ export async function GET(req: NextRequest) {
     const allPosts: ReturnType<typeof mapDiscussionPost>[] = []
     snapshot.forEach((child) => {
       const d = child.val() as Record<string, unknown>
-      if (d.archived) return
       if (status === 'pending' && d.status !== 'pending') return
       if (status === 'approved' && d.status !== 'approved') return
+      if (status === 'hidden' && !d.hiddenByMod) return
       allPosts.push(mapDiscussionPost(child.key!, d))
     })
 

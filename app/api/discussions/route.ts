@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
     snapshot.forEach((child) => {
       const d = child.val() as Record<string, unknown>
       if (d.archived) return
+      if (d.hiddenByMod) return
       if (d.status && d.status !== 'approved') return
       allPosts.push(mapDiscussionPost(child.key!, d))
     })
@@ -51,10 +52,15 @@ export async function GET(req: NextRequest) {
 
     const decoded = await verifyRequest(req)
     if (decoded && posts.length > 0) {
+      const savedSnap = await db.ref(`userSaved/${decoded.uid}`).get()
+      const savedSet = new Set<string>()
+      if (savedSnap.exists()) savedSnap.forEach((c) => { savedSet.add(c.key!); return false })
+
       await Promise.all(
         posts.map(async (post) => {
           const snap = await db.ref(`votes/${post.id}/${decoded.uid}`).get()
           post.userVote = toUserVote(readVote(snap.val()))
+          post.isSaved = savedSet.has(post.id)
         }),
       )
     }

@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
           if (tab === 'posts') {
             if (d.archived) return
           }
-          if (tab === 'hidden' && !d.archived) return
+          if (tab === 'hidden' && !d.archived && !d.hiddenByMod) return
           if (tab === 'pending' && d.status !== 'pending') return
           postIds.push(child.key!)
         })
@@ -97,8 +97,7 @@ export async function GET(req: NextRequest) {
     const posts = await enrichPosts(uid, postIds, raw)
     const ordered = postIds
       .map((id) => posts.find((p) => p.id === id))
-      .filter(Boolean)
-      .filter((p) => !p!.archived) as ReturnType<typeof mapDiscussionPost>[]
+      .filter(Boolean) as ReturnType<typeof mapDiscussionPost>[]
     return NextResponse.json({ posts: ordered })
   } catch (err) {
     console.error(err)

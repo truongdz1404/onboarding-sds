@@ -25,6 +25,7 @@ export type DiscussionPost = {
   createdAt: string
   userVote?: UserVote
   archived?: boolean
+  hiddenByMod?: boolean
   isSaved?: boolean
   status?: PostStatus
   moderatedAt?: string

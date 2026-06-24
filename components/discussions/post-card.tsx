@@ -56,14 +56,20 @@ interface PostCardProps {
   post: DiscussionPost;
   userVote?: UserVote;
   onArchived?: () => void;
+  onUnarchived?: () => void;
+  onHidden?: () => void;
   onPublished?: () => void;
+  extraAction?: React.ReactNode;
 }
 
 export function PostCard({
   post,
   userVote: initialUserVote = null,
   onArchived,
+  onUnarchived,
+  onHidden,
   onPublished,
+  extraAction,
 }: PostCardProps) {
   const { requireAuth } = useAuth();
   const [userVote, setUserVote] = useState<UserVote>(initialUserVote);
@@ -126,9 +132,10 @@ export function PostCard({
     fg: "text-sky-600",
   };
   const plainDesc = post.description ? stripHtml(post.description) : "";
-  const isPending = post.status === "pending";
-  const isDraft   = post.status === "draft";
-  const isRejected = post.status === "rejected";
+  const isPending    = post.status === "pending";
+  const isDraft      = post.status === "draft";
+  const isRejected   = post.status === "rejected";
+  const isHiddenByMod = post.hiddenByMod ?? false;
 
   return (
     <div className="group relative cursor-pointer rounded-xl bg-white px-4 py-3 my-1 transition-colors duration-150 hover:bg-[#f6f7f8]"
@@ -165,6 +172,11 @@ export function PostCard({
                 Từ chối
               </span>
             )}
+            {isHiddenByMod && (
+              <span className="flex-shrink-0 rounded-full bg-gray-800 px-2 py-0.5 text-[10px] font-semibold text-white">
+                Đã ẩn
+              </span>
+            )}
             <span className="text-gray-400">•</span>
             <span>đăng bởi</span>
 
@@ -195,7 +207,11 @@ export function PostCard({
             creatorUid={post.uid}
             initialSaved={post.isSaved}
             isDraft={isDraft}
+            isArchived={post.archived}
+            isHiddenByMod={isHiddenByMod}
             onArchived={onArchived}
+            onUnarchived={onUnarchived}
+            onHidden={onHidden}
             onPublished={onPublished}
             className="relative z-20 flex-shrink-0"
           />
@@ -269,6 +285,7 @@ export function PostCard({
               <CommentIcon />
               <span>{post.commentCount} bình luận</span>
             </Link>
+            {extraAction}
           </div>
         )}
       </div>

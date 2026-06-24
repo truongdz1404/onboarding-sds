@@ -227,7 +227,12 @@ function DiscussionsContent() {
                 ) : (
                   <>
                     {posts.map((post) => (
-                      <PostCard key={post.id} post={post} userVote={post.userVote ?? null} />
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        userVote={post.userVote ?? null}
+                        onHidden={() => setPosts((prev) => prev.filter((p) => p.id !== post.id))}
+                      />
                     ))}
 
                     {/* Infinite scroll sentinel */}

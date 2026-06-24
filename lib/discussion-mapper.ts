@@ -21,6 +21,7 @@ export function mapDiscussionPost(
     commentCount: (d.commentCount as number) ?? 0,
     createdAt: new Date(d.createdAt as number).toISOString(),
     archived: (d.archived as boolean) ?? false,
+    hiddenByMod: (d.hiddenByMod as boolean) ?? false,
     status: (d.status as 'pending' | 'approved' | 'rejected' | 'draft') ?? undefined,
     moderatedAt: d.moderatedAt ? new Date(d.moderatedAt as number).toISOString() : undefined,
     media: Array.isArray(d.media)
