@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import type { UserRole } from '@/lib/profile-types'
 import type { DiscussionTopic } from '@/lib/discussion-types'
 
-export type DiscussionView = 'posts' | 'moderation' | 'user-management' | 'topic-management'
+export type DiscussionView = 'posts' | 'recent-comments' | 'search' | 'moderation' | 'user-management' | 'topic-management'
 
 interface SidebarProps {
   activeCategory: string | null
@@ -80,14 +80,26 @@ export function DiscussionsSidebar({
           Tất cả bài viết
         </button>
 
-        <button className="flex items-center gap-3 rounded-lg px-3 py-2 text-base text-gray-700 transition-colors hover:bg-gray-100">
+        <button
+          onClick={() => onViewChange('recent-comments')}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-3 py-2 text-base text-gray-700 transition-colors hover:bg-gray-100',
+            activeView === 'recent-comments' && 'bg-gray-100 font-semibold text-gray-900',
+          )}
+        >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-6 flex-shrink-0 text-gray-500">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 9.5h4M8 13h7m-3 8a9 9 0 1 0-8.342-5.616c.081.2.122.3.14.381a1 1 0 0 1 .024.219c0 .083-.015.173-.045.353l-.593 3.558c-.062.373-.093.56-.035.694a.5.5 0 0 0 .262.262c.135.058.321.027.694-.035l3.558-.593c.18-.03.27-.045.353-.045.081 0 .14.006.219.024.08.018.18.059.38.14A9 9 0 0 0 12 21" />
           </svg>
           Bình luận gần đây
         </button>
 
-        <button className="flex items-center gap-3 rounded-lg px-3 py-2 text-base text-gray-700 transition-colors hover:bg-gray-100">
+        <button
+          onClick={() => onViewChange('search')}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-3 py-2 text-base text-gray-700 transition-colors hover:bg-gray-100',
+            activeView === 'search' && 'bg-gray-100 font-semibold text-gray-900',
+          )}
+        >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-6 flex-shrink-0 text-gray-500">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m21 21-4.35-4.35M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0" />
           </svg>

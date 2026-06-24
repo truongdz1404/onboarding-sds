@@ -89,6 +89,26 @@ export async function POST(
 
     await db.ref(`userCommentPosts/${decoded.uid}/${id}`).set({ lastCommentAt: Date.now() })
 
+    // Write to global recentComments feed
+    const postSnap = await db.ref(`discussions/${id}`).get()
+    if (postSnap.exists()) {
+      const pd = postSnap.val() as Record<string, unknown>
+      if (pd.status === 'approved' || !pd.status) {
+        await db.ref('recentComments').push().set({
+          commentId: newRef.key,
+          postId: id,
+          postTitle: (pd.title as string) ?? '',
+          postCategory: (pd.category as string) ?? 'Chung',
+          content: content.trim().slice(0, 200),
+          author: (isAnonymous ?? false) ? 'Ẩn danh' : displayName,
+          authorInitials: (isAnonymous ?? false) ? '?' : makeInitials(displayName),
+          photoURL: (isAnonymous ?? false) ? null : (decoded.picture ?? null),
+          isAnonymous: isAnonymous ?? false,
+          createdAt: Date.now(),
+        })
+      }
+    }
+
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error(err)

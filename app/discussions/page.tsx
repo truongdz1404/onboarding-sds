@@ -9,6 +9,8 @@ import { DiscussionsSidebar, type DiscussionView } from '@/components/discussion
 import { ModerationView } from '@/components/discussions/moderation-view'
 import { UserManagementView } from '@/components/discussions/user-management-view'
 import { TopicManagementView } from '@/components/discussions/topic-management-view'
+import { RecentCommentsView } from '@/components/discussions/recent-comments-view'
+import { SearchView } from '@/components/discussions/search-view'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 import type { DiscussionPost } from '@/lib/discussion-types'
@@ -33,8 +35,9 @@ function DiscussionsContent() {
   const [fetching, setFetching]       = useState(true)
 
   const viewParam = searchParams.get('view') as DiscussionView | null
+  const VALID_VIEWS: DiscussionView[] = ['posts', 'recent-comments', 'search', 'moderation', 'user-management', 'topic-management']
   const [activeView, setActiveView]   = useState<DiscussionView>(
-    viewParam === 'moderation' || viewParam === 'user-management' ? viewParam : 'posts'
+    VALID_VIEWS.includes(viewParam as DiscussionView) ? (viewParam as DiscussionView) : 'posts'
   )
 
   const fetchPosts = useCallback(async () => {
@@ -87,6 +90,12 @@ function DiscussionsContent() {
               activeView={activeView}
               onViewChange={handleViewChange}
             />
+
+            {/* ── Recent comments view ── */}
+            {activeView === 'recent-comments' && <RecentCommentsView />}
+
+            {/* ── Search view ── */}
+            {activeView === 'search' && <SearchView />}
 
             {/* ── Moderation view ── */}
             {activeView === 'moderation' && <ModerationView />}

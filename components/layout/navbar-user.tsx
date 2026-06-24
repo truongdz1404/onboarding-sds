@@ -5,7 +5,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth'
 import type { User } from 'firebase/auth'
 import Image from 'next/image'
 import Link from 'next/link'
-import { LogOut } from 'lucide-react'
+import { Icon, LogOut, User2 } from 'lucide-react'
 
 export function NavbarUser() {
   const [user, setUser] = useState<User | null>(null)
@@ -99,9 +99,7 @@ export function NavbarUser() {
             onClick={() => setOpen(false)}
             className="flex w-full items-center gap-2.5 border-b border-[#f0f0f0] px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-gray-50"
           >
-            <svg fill="currentColor" height="15" viewBox="0 0 20 20" width="15" className="text-gray-400" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 9.28a2.11 2.11 0 100-4.22 2.11 2.11 0 000 4.22zm0 1.44c-2.67 0-8 1.34-8 4v1.78h16V15c0-2.66-5.33-4-8-4z" />
-            </svg>
+            <User2 size={15} className="text-gray-400" />
             Hồ sơ của tôi
           </Link>
           <button
