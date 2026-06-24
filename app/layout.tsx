@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   description:
     'Internal onboarding hub for SoftDreams — Make IT Simple. Văn hóa, nội quy, blog nội bộ, văn phòng 360° và trợ lý AI SoftBot.',
   generator: 'v0.app',
+  icons: "https://softdreams.vn/wp-content/uploads/2023/12/logo-softdream-02-1131x800.png",
 }
 
 export const viewport: Viewport = {
