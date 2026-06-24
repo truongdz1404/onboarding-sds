@@ -9,26 +9,44 @@ function makeInitials(name: string) {
 
 import { mapDiscussionPost } from '@/lib/discussion-mapper'
 
+const PAGE_SIZE = 10
+
 export async function GET(req: NextRequest) {
   try {
     const sort = req.nextUrl.searchParams.get('sort') || 'newest'
+    const pageParam = req.nextUrl.searchParams.get('page')
+    const category = req.nextUrl.searchParams.get('category')
+
     const snapshot = await db.ref('discussions').get()
+    if (!snapshot.exists()) return NextResponse.json({ posts: [], hasMore: false })
 
-    if (!snapshot.exists()) return NextResponse.json({ posts: [] })
-
-    const posts: ReturnType<typeof mapDiscussionPost>[] = []
+    const allPosts: ReturnType<typeof mapDiscussionPost>[] = []
     snapshot.forEach((child) => {
       const d = child.val() as Record<string, unknown>
       if (d.archived) return
-      // hide pending/rejected posts from public feed (legacy posts without status = approved)
       if (d.status && d.status !== 'approved') return
-      posts.push(mapDiscussionPost(child.key!, d))
+      allPosts.push(mapDiscussionPost(child.key!, d))
     })
 
     if (sort === 'top') {
-      posts.sort((a, b) => b.upvoteCount - a.upvoteCount)
+      allPosts.sort((a, b) => b.upvoteCount - a.upvoteCount)
     } else {
-      posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      allPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    }
+
+    const filtered = category ? allPosts.filter((p) => p.category === category) : allPosts
+
+    let posts: typeof filtered
+    let hasMore = false
+
+    if (pageParam !== null) {
+      const page = Math.max(0, parseInt(pageParam, 10))
+      const start = page * PAGE_SIZE
+      posts = filtered.slice(start, start + PAGE_SIZE)
+      hasMore = start + PAGE_SIZE < filtered.length
+    } else {
+      // No pagination — return all (used by search-view)
+      posts = filtered
     }
 
     const decoded = await verifyRequest(req)
@@ -41,7 +59,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    return NextResponse.json({ posts: posts.slice(0, 50) })
+    return NextResponse.json({ posts, hasMore })
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })

@@ -7,12 +7,30 @@ function makeInitials(name: string) {
   return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
+const ROOT_PAGE_SIZE = 5
+
+type FlatComment = {
+  id: string
+  postId: string
+  content: unknown
+  author: string
+  authorInitials: string
+  photoURL: string | null
+  isAnonymous: boolean
+  createdAt: string
+  parentId: string | null
+  upvoteCount: number
+  userVote: ReturnType<typeof toUserVote>
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params
+    const rootPage = Math.max(0, parseInt(req.nextUrl.searchParams.get('rootPage') || '0', 10))
+
     const decoded = await verifyRequest(req)
     const snapshot = await db.ref(`comments/${id}`).orderByChild('createdAt').get()
 
@@ -29,16 +47,16 @@ export async function GET(
       }
     }
 
-    const comments: Record<string, unknown>[] = []
+    const allFlat: FlatComment[] = []
     if (snapshot.exists()) {
       snapshot.forEach((child) => {
         const d = child.val() as Record<string, unknown>
-        comments.push({
-          id: child.key,
+        allFlat.push({
+          id: child.key!,
           postId: id,
           content: d.content,
-          author: d.isAnonymous ? 'Ẩn danh' : d.author,
-          authorInitials: d.isAnonymous ? '?' : d.authorInitials,
+          author: d.isAnonymous ? 'Ẩn danh' : (d.author as string),
+          authorInitials: d.isAnonymous ? '?' : (d.authorInitials as string),
           photoURL: d.isAnonymous ? null : ((d.photoURL as string) ?? null),
           isAnonymous: (d.isAnonymous as boolean) ?? false,
           createdAt: new Date(d.createdAt as number).toISOString(),
@@ -49,7 +67,34 @@ export async function GET(
       })
     }
 
-    return NextResponse.json({ comments })
+    // Root comments sorted by createdAt asc (from Firebase orderByChild), reversed → newest first
+    const roots = allFlat.filter((c) => !c.parentId).reverse()
+    const start = rootPage * ROOT_PAGE_SIZE
+    const pageRoots = roots.slice(start, start + ROOT_PAGE_SIZE)
+    const hasMore = start + ROOT_PAGE_SIZE < roots.length
+
+    if (pageRoots.length === 0) {
+      return NextResponse.json({ comments: [], hasMore: false })
+    }
+
+    const pageRootIds = new Set(pageRoots.map((r) => r.id))
+    const commentById = new Map(allFlat.map((c) => [c.id, c]))
+
+    // Walk up parentId chain to find root ancestor
+    function getRootAncestor(commentId: string): string | undefined {
+      const c = commentById.get(commentId)
+      if (!c) return undefined
+      if (!c.parentId) return commentId
+      return getRootAncestor(c.parentId)
+    }
+
+    // Include only comments whose root ancestor is in this page
+    const comments = allFlat.filter((c) => {
+      const root = getRootAncestor(c.id)
+      return root !== undefined && pageRootIds.has(root)
+    })
+
+    return NextResponse.json({ comments, hasMore })
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 })
@@ -109,7 +154,7 @@ export async function POST(
       }
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, id: newRef.key })
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Failed to create comment' }, { status: 500 })

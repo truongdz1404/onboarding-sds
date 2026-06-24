@@ -14,28 +14,40 @@ async function getIdToken() {
 }
 
 export function ModerationView() {
-  const [tab, setTab] = useState<ModerationTab>('pending')
-  const [posts, setPosts] = useState<DiscussionPost[]>([])
-  const [loading, setLoading] = useState(true)
+  const [tab, setTab]               = useState<ModerationTab>('pending')
+  const [posts, setPosts]           = useState<DiscussionPost[]>([])
+  const [loading, setLoading]       = useState(true)
+  const [page, setPage]             = useState(0)
+  const [hasMore, setHasMore]       = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
-  const fetchPosts = useCallback(async (status: ModerationTab) => {
-    setLoading(true)
+  const fetchPosts = useCallback(async (targetPage: number, append: boolean) => {
+    if (!append) setLoading(true)
+    else setLoadingMore(true)
     try {
       const token = await getIdToken()
-      const res = await fetch(`/api/discussions/pending?status=${status}`, {
+      const res = await fetch(`/api/discussions/pending?status=${tab}&page=${targetPage}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       const data = await res.json()
-      setPosts(data.posts ?? [])
+      if (append) {
+        setPosts((prev) => [...prev, ...(data.posts ?? [])])
+        setPage(targetPage)
+      } else {
+        setPosts(data.posts ?? [])
+        setPage(0)
+      }
+      setHasMore(data.hasMore ?? false)
     } finally {
-      setLoading(false)
+      if (!append) setLoading(false)
+      else setLoadingMore(false)
     }
-  }, [])
+  }, [tab])
 
   useEffect(() => {
-    fetchPosts(tab)
-  }, [tab, fetchPosts])
+    fetchPosts(0, false)
+  }, [fetchPosts])
 
   async function handleModerate(postId: string, status: 'approved' | 'rejected') {
     setActionLoading(postId)
@@ -91,7 +103,9 @@ export function ModerationView() {
           </button>
         ))}
         {!loading && (
-          <span className="ml-auto pb-3 text-[12px] text-[#9ca3af]">{posts.length} bài</span>
+          <span className="ml-auto pb-3 text-[12px] text-[#9ca3af]">
+            {posts.length}{hasMore ? '+' : ''} bài
+          </span>
         )}
       </div>
 
@@ -108,45 +122,64 @@ export function ModerationView() {
           </p>
         </div>
       ) : (
-        <div>
-          {posts.map((post) => (
-            <div key={post.id} className="relative">
-              <PostCard post={post} userVote={post.userVote ?? null} />
-              {tab === 'pending' && (
-                <div className="flex items-center gap-2 px-4 pb-3 -mt-1">
-                  <button
-                    onClick={() => handleModerate(post.id, 'approved')}
-                    disabled={actionLoading === post.id}
-                    className="flex items-center gap-1.5 rounded-full bg-green-50 px-4 py-1.5 text-xs font-semibold text-green-700 border border-green-200 hover:bg-green-100 transition-colors disabled:opacity-50"
-                  >
-                    {actionLoading === post.id ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-3.5">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
-                    )}
-                    Phê duyệt
-                  </button>
-                  <button
-                    onClick={() => handleModerate(post.id, 'rejected')}
-                    disabled={actionLoading === post.id}
-                    className="flex items-center gap-1.5 rounded-full bg-red-50 px-4 py-1.5 text-xs font-semibold text-red-700 border border-red-200 hover:bg-red-100 transition-colors disabled:opacity-50"
-                  >
-                    {actionLoading === post.id ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-3.5">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18 18 6M6 6l12 12" />
-                      </svg>
-                    )}
-                    Từ chối
-                  </button>
-                </div>
-              )}
+        <>
+          <div>
+            {posts.map((post) => (
+              <div key={post.id} className="relative">
+                <PostCard post={post} userVote={post.userVote ?? null} />
+                {tab === 'pending' && (
+                  <div className="flex items-center gap-2 px-4 pb-3 -mt-1">
+                    <button
+                      onClick={() => handleModerate(post.id, 'approved')}
+                      disabled={actionLoading === post.id}
+                      className="flex items-center gap-1.5 rounded-full bg-green-50 px-4 py-1.5 text-xs font-semibold text-green-700 border border-green-200 hover:bg-green-100 transition-colors disabled:opacity-50"
+                    >
+                      {actionLoading === post.id ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-3.5">
+                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                      )}
+                      Phê duyệt
+                    </button>
+                    <button
+                      onClick={() => handleModerate(post.id, 'rejected')}
+                      disabled={actionLoading === post.id}
+                      className="flex items-center gap-1.5 rounded-full bg-red-50 px-4 py-1.5 text-xs font-semibold text-red-700 border border-red-200 hover:bg-red-100 transition-colors disabled:opacity-50"
+                    >
+                      {actionLoading === post.id ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-3.5">
+                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                      Từ chối
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Load more */}
+          {hasMore && (
+            <div className="mt-4 mb-6 text-center">
+              <button
+                onClick={() => fetchPosts(page + 1, true)}
+                disabled={loadingMore}
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-5 py-2 text-[13px] font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+              >
+                {loadingMore ? (
+                  <><Loader2 size={13} className="animate-spin" /> Đang tải...</>
+                ) : (
+                  'Xem thêm'
+                )}
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   )

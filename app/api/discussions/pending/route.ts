@@ -4,6 +4,8 @@ import { verifyRequest } from '@/lib/verify-token'
 import { mapDiscussionPost } from '@/lib/discussion-mapper'
 import { readVote, toUserVote } from '@/lib/vote-helpers'
 
+const PAGE_SIZE = 10
+
 async function getRole(uid: string) {
   const snap = await db.ref(`userRoles/${uid}/role`).get()
   return (snap.val() as string) ?? 'user'
@@ -20,20 +22,33 @@ export async function GET(req: NextRequest) {
     }
 
     const status = req.nextUrl.searchParams.get('status') || 'pending'
+    const pageParam = req.nextUrl.searchParams.get('page')
+
     const snapshot = await db.ref('discussions').get()
+    if (!snapshot.exists()) return NextResponse.json({ posts: [], hasMore: false })
 
-    if (!snapshot.exists()) return NextResponse.json({ posts: [] })
-
-    const posts: ReturnType<typeof mapDiscussionPost>[] = []
+    const allPosts: ReturnType<typeof mapDiscussionPost>[] = []
     snapshot.forEach((child) => {
       const d = child.val() as Record<string, unknown>
       if (d.archived) return
       if (status === 'pending' && d.status !== 'pending') return
       if (status === 'approved' && d.status !== 'approved') return
-      posts.push(mapDiscussionPost(child.key!, d))
+      allPosts.push(mapDiscussionPost(child.key!, d))
     })
 
-    posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    allPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    let posts: typeof allPosts
+    let hasMore = false
+
+    if (pageParam !== null) {
+      const page = Math.max(0, parseInt(pageParam, 10))
+      const start = page * PAGE_SIZE
+      posts = allPosts.slice(start, start + PAGE_SIZE)
+      hasMore = start + PAGE_SIZE < allPosts.length
+    } else {
+      posts = allPosts
+    }
 
     await Promise.all(
       posts.map(async (post) => {
@@ -42,7 +57,7 @@ export async function GET(req: NextRequest) {
       }),
     )
 
-    return NextResponse.json({ posts })
+    return NextResponse.json({ posts, hasMore })
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })

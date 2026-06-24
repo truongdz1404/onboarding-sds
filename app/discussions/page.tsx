@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Plus, ChevronDown, MessageSquare } from 'lucide-react'
+import { Plus, ChevronDown, MessageSquare, Loader2 } from 'lucide-react'
 import { PostCard } from '@/components/discussions/post-card'
 import { CommentIcon } from '@/components/icons/comment-icon'
 import { DiscussionsSidebar, type DiscussionView } from '@/components/discussions/discussions-sidebar'
@@ -29,10 +29,15 @@ function DiscussionsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, requireAuth, userRole } = useAuth()
+
   const [posts, setPosts]             = useState<DiscussionPost[]>([])
   const [sort, setSort]               = useState('newest')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [fetching, setFetching]       = useState(true)
+  const [page, setPage]               = useState(0)
+  const [hasMore, setHasMore]         = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
   const viewParam = searchParams.get('view') as DiscussionView | null
   const VALID_VIEWS: DiscussionView[] = ['posts', 'recent-comments', 'search', 'moderation', 'user-management', 'topic-management']
@@ -40,23 +45,53 @@ function DiscussionsContent() {
     VALID_VIEWS.includes(viewParam as DiscussionView) ? (viewParam as DiscussionView) : 'posts'
   )
 
-  const fetchPosts = useCallback(async () => {
-    setFetching(true)
+  const fetchPosts = useCallback(async (targetPage: number, append: boolean) => {
+    if (!append) {
+      setPosts([])
+      setFetching(true)
+    } else {
+      setLoadingMore(true)
+    }
     try {
       const token = user ? await getIdToken() : null
-      const res = await fetch(`/api/discussions?sort=${sort}`, {
+      const params = new URLSearchParams({ sort, page: String(targetPage) })
+      if (activeCategory) params.set('category', activeCategory)
+      const res = await fetch(`/api/discussions?${params}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       const data = await res.json()
-      setPosts(data.posts ?? [])
+      if (append) {
+        setPosts((prev) => [...prev, ...(data.posts ?? [])])
+        setPage(targetPage)
+      } else {
+        setPosts(data.posts ?? [])
+        setPage(0)
+      }
+      setHasMore(data.hasMore ?? false)
     } finally {
-      setFetching(false)
+      if (!append) setFetching(false)
+      else setLoadingMore(false)
     }
-  }, [sort, user])
+  }, [sort, user, activeCategory])
 
+  // Reset and reload when sort / category / view changes
   useEffect(() => {
-    if (activeView === 'posts') fetchPosts()
-  }, [fetchPosts, activeView])
+    if (activeView !== 'posts') return
+    fetchPosts(0, false)
+  }, [sort, activeCategory, activeView, fetchPosts])
+
+  // IntersectionObserver sentinel for infinite scroll
+  useEffect(() => {
+    if (!hasMore || loadingMore || fetching) return
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) fetchPosts(page + 1, true) },
+      { rootMargin: '300px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, loadingMore, fetching, page, fetchPosts])
 
   function openNewThread() {
     requireAuth(() => router.push('/discussions/new'))
@@ -70,10 +105,6 @@ function DiscussionsContent() {
     setActiveCategory(cat)
     setActiveView('posts')
   }
-
-  const displayed = activeCategory
-    ? posts.filter((p) => p.category === activeCategory)
-    : posts
 
   return (
     <>
@@ -122,7 +153,7 @@ function DiscussionsContent() {
                       </h1>
                       <p className="mt-0.5 text-[13px] text-[#6b7280]">
                         {activeCategory
-                          ? `${displayed.length} bài trong chủ đề này`
+                          ? `${posts.length}${hasMore ? '+' : ''} bài trong chủ đề này`
                           : 'Bắt đầu một thread, tham gia thảo luận, cập nhật thông tin.'}
                       </p>
                     </div>
@@ -156,7 +187,7 @@ function DiscussionsContent() {
                   ))}
                   {!fetching && (
                     <span className="ml-auto pb-3 text-[12px] text-[#9ca3af]">
-                      {displayed.length} bài
+                      {posts.length}{hasMore ? '+' : ''} bài
                     </span>
                   )}
                 </div>
@@ -179,7 +210,7 @@ function DiscussionsContent() {
                       </div>
                     ))}
                   </div>
-                ) : displayed.length === 0 ? (
+                ) : posts.length === 0 ? (
                   <div className="py-28 text-center">
                     <CommentIcon className="mx-auto mb-3 text-gray-400" width={48} height={48} />
                     <p className="text-xl font-bold text-[#1f2937]">
@@ -194,15 +225,27 @@ function DiscussionsContent() {
                     </button>
                   </div>
                 ) : (
-                  displayed.map((post) => (
-                    <PostCard key={post.id} post={post} userVote={post.userVote ?? null} />
-                  ))
-                )}
+                  <>
+                    {posts.map((post) => (
+                      <PostCard key={post.id} post={post} userVote={post.userVote ?? null} />
+                    ))}
 
-                {displayed.length > 0 && !fetching && (
-                  <div className="py-10 text-center">
-                    <p className="text-sm text-[#9ca3af]">Đã xem hết {displayed.length} bài</p>
-                  </div>
+                    {/* Infinite scroll sentinel */}
+                    <div ref={sentinelRef} className="h-1" />
+
+                    {/* Loading more indicator */}
+                    {loadingMore && (
+                      <div className="flex justify-center py-6">
+                        <Loader2 size={20} className="animate-spin text-gray-300" />
+                      </div>
+                    )}
+
+                    {!hasMore && !loadingMore && (
+                      <div className="py-10 text-center">
+                        <p className="text-sm text-[#9ca3af]">Đã xem hết {posts.length} bài</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}

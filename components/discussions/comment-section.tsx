@@ -83,17 +83,6 @@ function ReplyBox({ postId, parentId, authorName, onDone }: {
 }
 
 /* ── Comment card ── */
-/*
-  Layout (per comment):
-  ┌──────┬────────────────────────────┐
-  │ [av] │ name • time               │  ← header row
-  │  │   │ body text                 │  ← body row    } thread line in left col
-  │ [⊖]  │ ↑ count ↓  Reply  Share  │  ← action row  }   (only if has replies)
-  └──────┴────────────────────────────┘
-  ← ml-10 →
-            ╰── reply1  (curved connector)
-            ╰── reply2
-*/
 function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
   comment: CommentNode; postId: string; onRefresh: () => void
   depth?: number; replyToName?: string
@@ -167,36 +156,32 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
             )}
           </div>
 
-          {/* Thread line — stretches to fill height, only when has replies & expanded */}
+          {/* Thread line */}
           {hasReplies && !collapsed
             ? <div className="mt-1 w-0.5 flex-1 rounded-full bg-gray-200" />
             : <div className="flex-1" />
           }
 
-          {/* ⊖/⊕ — only when comment has replies */}
+          {/* ⊖/⊕ */}
           {hasReplies ? (
             <button onClick={() => setCollapsed((v) => !v)}
               className="flex-shrink-0 text-gray-300 transition-colors hover:text-gray-500">
               {collapsed
-                ? /* ⊕ add-circle */
-                  <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                ? <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 1a9 9 0 100 18 9 9 0 000-18zm0 16.2a7.2 7.2 0 117.2-7.2 7.208 7.208 0 01-7.2 7.2zm.9-8.1H14v1.8h-3.1V14H9.1v-3.1H6V9.1h3.1V6h1.8v3.1z" />
                   </svg>
-                : /* ⊖ subtract-circle */
-                  <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                : <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 2.8A7.2 7.2 0 112.8 10 7.208 7.208 0 0110 2.8zM10 1a9 9 0 100 18 9 9 0 000-18zm4 8.1H6v1.8h8V9.1z" />
                   </svg>
               }
             </button>
           ) : (
-            /* Spacer so the right col bottom-pads symmetrically */
             <div className="h-4 flex-shrink-0" />
           )}
         </div>
 
-        {/* RIGHT column: header + body + actions */}
+        {/* RIGHT column */}
         <div className="min-w-0 flex-1 pb-1">
-          {/* Header */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
             <span className="text-[13px] font-bold text-gray-900">{authorDisplay}</span>
             <span className="text-[10px] text-gray-300">•</span>
@@ -210,7 +195,6 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
             </button>
           ) : (
             <>
-              {/* Body */}
               <p className="mb-2 mt-1 whitespace-pre-wrap text-[14px] leading-relaxed text-gray-800">
                 {replyToName && (
                   <span className="mr-1 font-semibold text-primary">@{replyToName}</span>
@@ -218,9 +202,7 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
                 {comment.content}
               </p>
 
-              {/* Action bar */}
               <div className="mb-1 flex flex-wrap items-center gap-0.5 text-gray-500">
-                {/* Upvote */}
                 <button onClick={(e) => handleVote(e, 'up')} disabled={voteLoading}
                   className={cn('flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-gray-100 disabled:opacity-50',
                     userVote === 'up' ? 'text-primary' : 'text-gray-400')}>
@@ -231,12 +213,10 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
                     }
                   </svg>
                 </button>
-                {/* Vote count */}
                 <span className={cn('min-w-[1.25rem] text-center text-[12px] font-semibold',
                   userVote === 'up' ? 'text-primary' : userVote === 'down' ? 'text-red-500' : 'text-gray-500')}>
                   {voteCount}
                 </span>
-                {/* Downvote */}
                 <button onClick={(e) => handleVote(e, 'down')} disabled={voteLoading}
                   className={cn('flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-gray-100 disabled:opacity-50',
                     userVote === 'down' ? 'text-red-500' : 'text-gray-400')}>
@@ -247,7 +227,6 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
                     }
                   </svg>
                 </button>
-                {/* Reply */}
                 <button onClick={() => setShowReply((v) => !v)}
                   className="ml-1 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold text-gray-500 transition-colors hover:bg-gray-100">
                   <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
@@ -255,7 +234,6 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
                   </svg>
                   Reply
                 </button>
-                {/* Share */}
                 <button className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold text-gray-500 transition-colors hover:bg-gray-100">
                   <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12.8 17.524l6.89-6.887a.9.9 0 000-1.273L12.8 2.477a1.64 1.64 0 00-1.782-.349 1.64 1.64 0 00-1.014 1.518v2.593C4.054 6.728 1.192 12.075 1 17.376a1.353 1.353 0 00.862 1.32 1.35 1.35 0 001.531-.364l.334-.381c1.705-1.944 3.323-3.791 6.277-4.103v2.509c0 .667.398 1.262 1.014 1.518a1.638 1.638 0 001.783-.349v-.002zm-.994-1.548V12h-.9c-3.969 0-6.162 2.1-8.001 4.161.514-4.011 2.823-8.16 8-8.16h.9V4.024L17.784 10l-5.977 5.976z" />
@@ -264,7 +242,6 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
                 </button>
               </div>
 
-              {/* Reply composer */}
               {showReply && (
                 <ReplyBox postId={postId} parentId={comment.id} authorName={authorDisplay}
                   onDone={() => { setShowReply(false); onRefresh() }} />
@@ -275,52 +252,32 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
       </div>
 
       {/* ── Replies ── */}
-      {/*
-        depth 0, 1, 2 (level 1–3) → indented ml-10 with curved connector, no @mention
-        depth >= 2 (level 4+)     → flat, no indent, no connector, with @mention
-      */}
       {!collapsed && hasReplies && (
         depth < 2 ? (
-          /* Level 1–3: indented with connector, no @mention */
           <div className="ml-10">
             {comment.replies.map((reply, index) => {
               const isLast = index === comment.replies.length - 1
-
               return (
-                <div
-                  key={reply.id}
-                  className={cn('relative', !isLast && 'pb-2')}
-                >
-                  {/* Vertical spine — same x-axis as parent thread line (w-8 center) */}
+                <div key={reply.id} className={cn('relative', !isLast && 'pb-2')}>
                   {!isLast ? (
                     <div className="pointer-events-none absolute -left-6 top-0 bottom-0 w-0.5 rounded-full bg-gray-200" />
                   ) : (
                     <div className="pointer-events-none absolute -left-6 top-0 h-1.5 w-0.5 rounded-full bg-gray-200" />
                   )}
-
                   <div className="relative pl-3">
-                    {/* Elbow — horizontal at avatar center (top-4), no border-l (spine handles vertical) */}
                     <div className="pointer-events-none absolute -left-6 top-1.5 h-2.5 w-9 rounded-bl-[10px] border-b-2 border-gray-200" />
-                    <CommentCard
-                      comment={reply}
-                      postId={postId}
-                      onRefresh={onRefresh}
-                      depth={depth + 1}
-                    />
+                    <CommentCard comment={reply} postId={postId} onRefresh={onRefresh} depth={depth + 1} />
                   </div>
                 </div>
               )
             })}
           </div>
         ) : (
-          /* Level 4+: flat, no indent, no connector, with @mention */
           <div className="mt-0.5">
             {comment.replies.map((reply) => (
               <div key={reply.id} className="mb-2">
                 <CommentCard
-                  comment={reply}
-                  postId={postId}
-                  onRefresh={onRefresh}
+                  comment={reply} postId={postId} onRefresh={onRefresh}
                   depth={depth + 1}
                   replyToName={comment.isAnonymous ? 'Ẩn danh' : comment.author}
                 />
@@ -341,19 +298,64 @@ export function CommentSection({ postId }: { postId: string }) {
   const [content, setContent]         = useState('')
   const [submitting, setSubmitting]   = useState(false)
   const [inputExpanded, setInputExpanded] = useState(false)
+  const [rootPage, setRootPage]       = useState(0)
+  const [hasMore, setHasMore]         = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
-  const fetchComments = useCallback(async () => {
-    const token = user ? await getIdToken() : null
-    const res  = await fetch(`/api/discussions/${postId}/comments`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-    const data = await res.json()
-    setComments(data.comments ?? [])
-    setLoading(false)
+  const fetchPage = useCallback(async (targetPage: number, append: boolean) => {
+    if (!append) setLoading(true)
+    else setLoadingMore(true)
+    try {
+      const token = user ? await getIdToken() : null
+      const res = await fetch(`/api/discussions/${postId}/comments?rootPage=${targetPage}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      const data = await res.json()
+      if (append) {
+        setComments((prev) => [...prev, ...(data.comments ?? [])])
+        setRootPage(targetPage)
+      } else {
+        setComments(data.comments ?? [])
+        setRootPage(0)
+      }
+      setHasMore(data.hasMore ?? false)
+    } finally {
+      if (!append) setLoading(false)
+      else setLoadingMore(false)
+    }
   }, [postId, user])
 
-  useEffect(() => { fetchComments() }, [fetchComments])
+  // Reload all pages 0..rootPage (called after posting a reply)
+  const refreshAll = useCallback(async () => {
+    const allComments: DiscussionComment[] = []
+    for (let p = 0; p <= rootPage; p++) {
+      const token = user ? await getIdToken() : null
+      const res = await fetch(`/api/discussions/${postId}/comments?rootPage=${p}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      const data = await res.json()
+      allComments.push(...(data.comments ?? []))
+      if (p === rootPage) setHasMore(data.hasMore ?? false)
+    }
+    setComments(allComments)
+  }, [postId, user, rootPage])
+
+  useEffect(() => { fetchPage(0, false) }, [fetchPage])
+
+  // IntersectionObserver sentinel for infinite scroll
+  useEffect(() => {
+    if (!hasMore || loadingMore || loading) return
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) fetchPage(rootPage + 1, true) },
+      { rootMargin: '300px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, loadingMore, loading, rootPage, fetchPage])
 
   function handleInputClick() {
     if (!user) {
@@ -380,7 +382,8 @@ export function CommentSection({ postId }: { postId: string }) {
       })
       setContent('')
       setInputExpanded(false)
-      await fetchComments()
+      // Reload from page 0 — new root comment is newest, appears at top
+      await fetchPage(0, false)
     } finally { setSubmitting(false) }
   }
 
@@ -417,7 +420,7 @@ export function CommentSection({ postId }: { postId: string }) {
         )}
       </div>
 
-      {/* Sort */}
+      {/* Sort label */}
       {!loading && comments.length > 0 && (
         <div className="mb-5 flex items-center gap-1 text-[13px] text-gray-500">
           <span>Sắp xếp:</span>
@@ -451,11 +454,28 @@ export function CommentSection({ postId }: { postId: string }) {
           <p className="mt-1 text-sm text-gray-400">Hãy là người đầu tiên chia sẻ!</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {tree.map((comment) => (
-            <CommentCard key={comment.id} comment={comment} postId={postId} onRefresh={fetchComments} />
-          ))}
-        </div>
+        <>
+          <div className="space-y-4">
+            {tree.map((comment) => (
+              <CommentCard key={comment.id} comment={comment} postId={postId} onRefresh={refreshAll} />
+            ))}
+          </div>
+
+          {/* Infinite scroll sentinel */}
+          <div ref={sentinelRef} className="h-1" />
+
+          {loadingMore && (
+            <div className="mt-4 flex justify-center">
+              <Loader2 size={18} className="animate-spin text-gray-300" />
+            </div>
+          )}
+
+          {!hasMore && tree.length > 0 && (
+            <p className="mt-6 text-center text-[12px] text-gray-400">
+              Đã xem hết {tree.length} bình luận gốc
+            </p>
+          )}
+        </>
       )}
     </div>
   )
