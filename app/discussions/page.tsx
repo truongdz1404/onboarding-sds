@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Plus, ChevronDown, MessageSquare } from 'lucide-react'
 import { PostCard } from '@/components/discussions/post-card'
@@ -21,7 +21,7 @@ const SORT_OPTIONS = [
   { value: 'top',    label: 'Nổi bật' },
 ]
 
-export default function DiscussionsPage() {
+function DiscussionsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, requireAuth, userRole } = useAuth()
@@ -196,5 +196,13 @@ export default function DiscussionsPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function DiscussionsPage() {
+  return (
+    <Suspense>
+      <DiscussionsContent />
+    </Suspense>
   )
 }
