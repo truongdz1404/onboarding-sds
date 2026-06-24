@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAuth } from '@/lib/auth-context'
 import { PostCard } from '@/components/discussions/post-card'
 import { ProfileOverview } from '@/components/profile/profile-overview'
@@ -97,6 +98,15 @@ export default function ProfilePageClient() {
     setPosts((prev) => prev.filter((p) => p.id !== postId))
   }
 
+  function handlePostPublished(postId: string) {
+    setPosts((prev) =>
+      prev.map((p) => p.id === postId ? { ...p, status: 'pending' } : p)
+    )
+    toast.success('Đã gửi bài để kiểm duyệt!', {
+      description: 'Bài viết sẽ hiển thị sau khi được phê duyệt.',
+    })
+  }
+
   if (authLoading || loadingProfile) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center pt-28">
@@ -176,6 +186,7 @@ export default function ProfilePageClient() {
                     post={post}
                     userVote={post.userVote ?? null}
                     onArchived={() => handlePostArchived(post.id)}
+                    onPublished={() => handlePostPublished(post.id)}
                   />
                 ))}
               </div>

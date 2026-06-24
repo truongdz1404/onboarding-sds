@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { PostActionsMenu } from "./post-actions-menu";
 import { useRouter } from "next/navigation";
 import { CommentIcon } from "@/components/icons/comment-icon";
+import { ImageCarousel } from "./image-carousel";
 
 const CATEGORY_META: Record<string, { slug: string; bg: string; fg: string }> =
   {
@@ -54,12 +55,14 @@ interface PostCardProps {
   post: DiscussionPost;
   userVote?: UserVote;
   onArchived?: () => void;
+  onPublished?: () => void;
 }
 
 export function PostCard({
   post,
   userVote: initialUserVote = null,
   onArchived,
+  onPublished,
 }: PostCardProps) {
   const { requireAuth } = useAuth();
   const [userVote, setUserVote] = useState<UserVote>(initialUserVote);
@@ -109,6 +112,8 @@ export function PostCard({
   };
   const plainDesc = post.description ? stripHtml(post.description) : "";
   const isPending = post.status === "pending";
+  const isDraft   = post.status === "draft";
+  const isRejected = post.status === "rejected";
 
   return (
     <div className="group relative cursor-pointer rounded-xl bg-white px-4 py-3 my-1 transition-colors duration-150 hover:bg-[#f6f7f8]"
@@ -133,6 +138,16 @@ export function PostCard({
             {isPending && (
               <span className="flex-shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                 Chờ duyệt
+              </span>
+            )}
+            {isDraft && (
+              <span className="flex-shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                Bản nháp
+              </span>
+            )}
+            {isRejected && (
+              <span className="flex-shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600">
+                Từ chối
               </span>
             )}
             <span className="text-gray-400">•</span>
@@ -164,7 +179,9 @@ export function PostCard({
             postId={post.id}
             creatorUid={post.uid}
             initialSaved={post.isSaved}
+            isDraft={isDraft}
             onArchived={onArchived}
+            onPublished={onPublished}
             className="relative z-20 flex-shrink-0"
           />
         </div>
@@ -181,8 +198,13 @@ export function PostCard({
           </p>
         )}
 
-        {/* ── Action bar ── hidden for pending posts */}
-        {!isPending && (
+        {/* ── Media ── */}
+        {post.media && post.media.length > 0 && (
+          <ImageCarousel items={post.media} maxHeight={320} className="mt-1" />
+        )}
+
+        {/* ── Action bar ── hidden for pending/draft/rejected posts */}
+        {!isPending && !isDraft && !isRejected && (
           <div className="relative z-10 flex items-center gap-2 pt-1">
             {/* Vote group pill */}
             <div className="flex items-center overflow-hidden rounded-full border border-gray-200 bg-white text-sm font-semibold text-gray-700">

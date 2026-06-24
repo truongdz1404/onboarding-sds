@@ -22,7 +22,6 @@ export async function GET(req: NextRequest) {
           if (d.uid !== uid) return
           if (tab === 'posts') {
             if (d.archived) return
-            if (d.status === 'pending' || d.status === 'rejected') return
           }
           if (tab === 'hidden' && !d.archived) return
           if (tab === 'pending' && d.status !== 'pending') return

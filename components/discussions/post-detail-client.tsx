@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import type { DiscussionPost, UserVote } from '@/lib/discussion-types'
 import type { VoteDirection } from '@/lib/vote-helpers'
 import { PostActionsMenu } from './post-actions-menu'
+import { ImageCarousel } from './image-carousel'
 
 const CATEGORY_META: Record<string, { slug: string; bg: string; fg: string }> = {
   'Chung':        { slug: 'chung',       bg: 'bg-sky-100',    fg: 'text-sky-600'    },
@@ -211,6 +212,11 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
               className="prosemirror-editor mb-4 text-[14px] leading-relaxed text-gray-800"
               dangerouslySetInnerHTML={{ __html: post.description }}
             />
+          )}
+
+          {/* Media */}
+          {post.media && post.media.length > 0 && (
+            <ImageCarousel items={post.media} maxHeight={500} className="mb-4" />
           )}
 
           {/* Pending banner */}

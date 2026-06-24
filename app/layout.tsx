@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { FloatingBot } from '@/components/layout/floating-bot'
 import { MobileTabBar } from '@/components/layout/mobile-tab-bar'
+import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
   title: 'SoftDreams · Onboarding Hub',
@@ -41,6 +42,7 @@ export default function RootLayout({
         <Footer />
         <FloatingBot />
         <MobileTabBar />
+        <Toaster position="top-right" richColors />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

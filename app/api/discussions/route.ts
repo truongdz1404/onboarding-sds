@@ -53,11 +53,15 @@ export async function POST(req: NextRequest) {
     const decoded = await verifyRequest(req)
     if (!decoded) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { title, description, category, tags, isAnonymous } = await req.json()
+    const { title, description, category, tags, isAnonymous, media, isDraft } = await req.json()
     if (!title?.trim()) return NextResponse.json({ error: 'Missing title' }, { status: 400 })
 
     const displayName = decoded.name ?? decoded.email ?? 'Unknown'
     const newRef = db.ref('discussions').push()
+
+    const cleanMedia = Array.isArray(media)
+      ? media.filter((m: unknown) => m && typeof (m as {url:unknown}).url === 'string' && ['image','video'].includes((m as {type:unknown}).type as string))
+      : []
 
     await newRef.set({
       title: title.trim(),
@@ -69,10 +73,11 @@ export async function POST(req: NextRequest) {
       isAnonymous: isAnonymous ?? false,
       category: category ?? 'Chung',
       tags: Array.isArray(tags) ? tags : [],
+      media: cleanMedia,
       upvoteCount: 0,
       commentCount: 0,
       createdAt: Date.now(),
-      status: 'pending',
+      status: isDraft ? 'draft' : 'pending',
     })
 
     return NextResponse.json({ id: newRef.key })

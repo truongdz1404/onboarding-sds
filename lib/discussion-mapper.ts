@@ -1,4 +1,5 @@
 import type { UserVote } from '@/lib/vote-helpers'
+import type { PostMedia } from '@/lib/discussion-types'
 
 export function mapDiscussionPost(
   id: string,
@@ -20,8 +21,13 @@ export function mapDiscussionPost(
     commentCount: (d.commentCount as number) ?? 0,
     createdAt: new Date(d.createdAt as number).toISOString(),
     archived: (d.archived as boolean) ?? false,
-    status: (d.status as 'pending' | 'approved' | 'rejected') ?? undefined,
+    status: (d.status as 'pending' | 'approved' | 'rejected' | 'draft') ?? undefined,
     moderatedAt: d.moderatedAt ? new Date(d.moderatedAt as number).toISOString() : undefined,
+    media: Array.isArray(d.media)
+      ? (d.media as PostMedia[])
+      : Array.isArray(d.images)
+        ? (d.images as string[]).map((url) => ({ url, type: 'image' as const }))
+        : [],
     userVote: extras?.userVote ?? null,
     isSaved: extras?.isSaved ?? false,
   }

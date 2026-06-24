@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Bookmark, Archive } from 'lucide-react'
+import { Bookmark, Archive, Send } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { ConfirmDialog } from './confirm-dialog'
 import { cn } from '@/lib/utils'
@@ -15,8 +15,10 @@ interface PostActionsMenuProps {
   postId: string
   creatorUid?: string
   initialSaved?: boolean
+  isDraft?: boolean
   onSavedChange?: (saved: boolean) => void
   onArchived?: () => void
+  onPublished?: () => void
   className?: string
   align?: 'left' | 'right'
 }
@@ -25,8 +27,10 @@ export function PostActionsMenu({
   postId,
   creatorUid,
   initialSaved = false,
+  isDraft = false,
   onSavedChange,
   onArchived,
+  onPublished,
   className,
   align = 'right',
 }: PostActionsMenuProps) {
@@ -36,6 +40,7 @@ export function PostActionsMenu({
   const [saveLoading, setSaveLoading] = useState(false)
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [archiveLoading, setArchiveLoading] = useState(false)
+  const [publishLoading, setPublishLoading] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   const isCreator = !!user && !!creatorUid && user.uid === creatorUid
@@ -88,6 +93,26 @@ export function PostActionsMenu({
     }
   }
 
+  async function handlePublish() {
+    if (publishLoading) return
+    setPublishLoading(true)
+    setOpen(false)
+    try {
+      const token = await getIdToken()
+      const res = await fetch(`/api/discussions/${postId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ isDraft: false }),
+      })
+      if (res.ok) onPublished?.()
+    } finally {
+      setPublishLoading(false)
+    }
+  }
+
   function handleSaveClick() {
     requireAuth(() => toggleSave())
   }
@@ -115,15 +140,27 @@ export function PostActionsMenu({
             'absolute top-full z-50 mt-1 min-w-[180px] overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-xl',
             align === 'right' ? 'right-0' : 'left-0',
           )}>
-            <button
-              onClick={(e) => { e.stopPropagation(); handleSaveClick() }}
-              disabled={saveLoading}
-              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            >
-              <Bookmark size={15} className={saved ? 'fill-primary text-primary' : 'text-gray-400'} />
-              {saved ? 'Bỏ lưu' : 'Lưu'}
-            </button>
-            {isCreator && (
+            {isCreator && isDraft && (
+              <button
+                onClick={(e) => { e.stopPropagation(); handlePublish() }}
+                disabled={publishLoading}
+                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                <Send size={15} className="text-gray-400" />
+                Đăng bài
+              </button>
+            )}
+            {!isDraft && (
+              <button
+                onClick={(e) => { e.stopPropagation(); handleSaveClick() }}
+                disabled={saveLoading}
+                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                <Bookmark size={15} className={saved ? 'fill-primary text-primary' : 'text-gray-400'} />
+                {saved ? 'Bỏ lưu' : 'Lưu'}
+              </button>
+            )}
+            {isCreator && !isDraft && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleArchiveClick() }}
                 className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"

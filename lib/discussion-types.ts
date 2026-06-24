@@ -2,7 +2,12 @@ import type { UserVote } from '@/lib/vote-helpers'
 
 export type { UserVote } from '@/lib/vote-helpers'
 
-export type PostStatus = 'pending' | 'approved' | 'rejected'
+export type PostStatus = 'pending' | 'approved' | 'rejected' | 'draft'
+
+export type PostMedia = {
+  url: string
+  type: 'image' | 'video'
+}
 
 export type DiscussionPost = {
   id: string
@@ -23,6 +28,7 @@ export type DiscussionPost = {
   isSaved?: boolean
   status?: PostStatus
   moderatedAt?: string
+  media?: PostMedia[]
 }
 
 
