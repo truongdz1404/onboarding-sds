@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 import type { DiscussionPost, UserVote } from '@/lib/discussion-types'
 import type { VoteDirection } from '@/lib/vote-helpers'
+import { voteDelta, fromUserVote } from '@/lib/vote-helpers'
 import { PostActionsMenu } from './post-actions-menu'
 import { ImageCarousel } from './image-carousel'
 
@@ -86,7 +87,15 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
 
   async function doVote(direction: VoteDirection) {
     if (voteLoading) return
+
+    const prevVote  = userVote
+    const prevCount = voteCount
+    const delta     = voteDelta(userVote === 'up' ? 1 : userVote === 'down' ? -1 : null, fromUserVote(direction))
+    const nextVote: UserVote = (userVote === direction) ? null : direction
+    setUserVote(nextVote)
+    setVoteCount(voteCount + delta)
     setVoteLoading(true)
+
     try {
       const token = await getIdToken()
       const res = await fetch(`/api/discussions/${post.id}/vote`, {
@@ -101,7 +110,13 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
       if (res.ok) {
         setUserVote(data.vote ?? null)
         setVoteCount(data.score)
+      } else {
+        setUserVote(prevVote)
+        setVoteCount(prevCount)
       }
+    } catch {
+      setUserVote(prevVote)
+      setVoteCount(prevCount)
     } finally {
       setVoteLoading(false)
     }

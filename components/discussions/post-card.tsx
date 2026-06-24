@@ -4,6 +4,7 @@ import Link from "next/link";
 import { timeAgo } from "@/lib/time-utils";
 import type { DiscussionPost, UserVote } from "@/lib/discussion-types";
 import type { VoteDirection } from "@/lib/vote-helpers";
+import { voteDelta, fromUserVote } from "@/lib/vote-helpers";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
@@ -84,7 +85,15 @@ export function PostCard({
 
   async function doVote(direction: VoteDirection) {
     if (loading) return;
+
+    const prevVote  = userVote;
+    const prevCount = voteCount;
+    const delta     = voteDelta(userVote === 'up' ? 1 : userVote === 'down' ? -1 : null, fromUserVote(direction));
+    const nextVote: UserVote = (userVote === direction) ? null : direction;
+    setUserVote(nextVote);
+    setVoteCount(voteCount + delta);
     setLoading(true);
+
     try {
       const token = await getIdToken();
       const res = await fetch(`/api/discussions/${post.id}/vote`, {
@@ -99,7 +108,13 @@ export function PostCard({
       if (res.ok) {
         setUserVote(data.vote ?? null);
         setVoteCount(data.score);
+      } else {
+        setUserVote(prevVote);
+        setVoteCount(prevCount);
       }
+    } catch {
+      setUserVote(prevVote);
+      setVoteCount(prevCount);
     } finally {
       setLoading(false);
     }
