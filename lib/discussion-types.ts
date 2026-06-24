@@ -28,6 +28,18 @@ export type DiscussionPost = {
 
 
 
+export type DiscussionTopic = {
+  id: string
+  label: string
+  value: string
+  slug: string
+  bg: string
+  fg: string
+  iconPath: string
+  order: number
+  createdAt: string
+}
+
 export type DiscussionComment = {
   id: string
   postId: string

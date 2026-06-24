@@ -1,9 +1,11 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import type { UserRole } from '@/lib/profile-types'
+import type { DiscussionTopic } from '@/lib/discussion-types'
 
-export type DiscussionView = 'posts' | 'moderation' | 'user-management'
+export type DiscussionView = 'posts' | 'moderation' | 'user-management' | 'topic-management'
 
 interface SidebarProps {
   activeCategory: string | null
@@ -14,85 +16,24 @@ interface SidebarProps {
   onViewChange: (view: DiscussionView) => void
 }
 
-const TOPICS = [
-  {
-    label: 'p/chung',
-    value: 'Chung',
-    bg: 'bg-sky-100',
-    fg: 'text-sky-600',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-[14px]">
-        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0c2.485 0 4-4.03 4-9s-1.515-9-4-9m0 18c-2.485 0-4-4.03-4-9s1.515-9 4-9m-9 9h18" />
-      </svg>
-    ),
-  },
-  {
-    label: 'p/ky-thuat',
-    value: 'Kỹ thuật',
-    bg: 'bg-violet-100',
-    fg: 'text-violet-600',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-[14px]">
-        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m16 18 4-4-4-4M8 6 4 10l4 4" />
-      </svg>
-    ),
-  },
-  {
-    label: 'p/hoi-dap',
-    value: 'Hỏi & Đáp',
-    bg: 'bg-amber-100',
-    fg: 'text-amber-600',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-[14px]">
-        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'p/gioi-thieu',
-    value: 'Giới thiệu',
-    bg: 'bg-green-100',
-    fg: 'text-green-600',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-[14px]">
-        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'p/san-pham',
-    value: 'Sản phẩm',
-    bg: 'bg-rose-100',
-    fg: 'text-rose-600',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-[14px]">
-        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m21 7.5-9-4.5L3 7.5m18 0-9 4.5m9-4.5v9l-9 4.5M3 7.5l9 4.5M3 7.5v9l9 4.5m0-9v9" />
-      </svg>
-    ),
-  },
-  {
-    label: 'p/kinh-nghiem',
-    value: 'Kinh nghiệm',
-    bg: 'bg-teal-100',
-    fg: 'text-teal-600',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-[14px]">
-        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-      </svg>
-    ),
-  },
-  {
-    label: 'p/hoat-dong',
-    value: 'Hoạt động',
-    bg: 'bg-orange-100',
-    fg: 'text-orange-600',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-[14px]">
-        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-      </svg>
-    ),
-  },
-]
+function TopicIcon({ path, className }: { path: string; className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      className={className ?? 'size-[14px]'}
+    >
+      <path
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+        d={path}
+      />
+    </svg>
+  )
+}
 
 export function DiscussionsSidebar({
   activeCategory,
@@ -104,6 +45,17 @@ export function DiscussionsSidebar({
 }: SidebarProps) {
   const isMod = userRole === 'moderator' || userRole === 'admin'
   const isAdmin = userRole === 'admin'
+
+  const [topics, setTopics] = useState<DiscussionTopic[]>([])
+  const [loadingTopics, setLoadingTopics] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/topics')
+      .then((r) => r.json())
+      .then((data) => setTopics(data.topics ?? []))
+      .catch(() => setTopics([]))
+      .finally(() => setLoadingTopics(false))
+  }, [])
 
   function handleCategoryClick(cat: string | null) {
     onViewChange('posts')
@@ -155,22 +107,47 @@ export function DiscussionsSidebar({
 
       {/* ── Topic Forums ── */}
       <div className="mt-8 flex flex-col">
-        <h3 className="mb-2 px-4 text-sm font-medium text-gray-500">Chủ đề thảo luận</h3>
-        {TOPICS.map(({ label, value, icon, bg, fg }) => (
-          <button
-            key={value}
-            onClick={() => handleCategoryClick(activeCategory === value ? null : value)}
-            className={cn(
-              'flex items-center gap-4 rounded-lg px-4 py-3 text-base text-gray-700 transition-colors hover:bg-gray-100',
-              activeView === 'posts' && activeCategory === value && 'bg-gray-100 font-semibold text-gray-900'
-            )}
-          >
-            <span className={cn('flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg', bg, fg)}>
-              {icon}
-            </span>
-            {label}
-          </button>
-        ))}
+        <div className="mb-2 flex items-center justify-between px-4">
+          <h3 className="text-sm font-medium text-gray-500">Chủ đề thảo luận</h3>
+          {isAdmin && (
+            <button
+              onClick={() => onViewChange('topic-management')}
+              title="Quản lý chủ đề"
+              className="flex h-5 w-5 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-3.5">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {loadingTopics ? (
+          <>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="mx-3 my-1 flex items-center gap-3 rounded-lg px-2 py-2.5">
+                <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-100" />
+                <div className="h-3.5 w-28 animate-pulse rounded bg-gray-100" />
+              </div>
+            ))}
+          </>
+        ) : (
+          topics.map(({ id, label, value, iconPath, bg, fg }) => (
+            <button
+              key={id}
+              onClick={() => handleCategoryClick(activeCategory === value ? null : value)}
+              className={cn(
+                'flex items-center gap-4 rounded-lg px-4 py-3 text-base text-gray-700 transition-colors hover:bg-gray-100',
+                activeView === 'posts' && activeCategory === value && 'bg-gray-100 font-semibold text-gray-900'
+              )}
+            >
+              <span className={cn('flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg', bg, fg)}>
+                <TopicIcon path={iconPath} />
+              </span>
+              {label}
+            </button>
+          ))
+        )}
       </div>
 
       {/* ── Moderator section ── */}
@@ -198,6 +175,20 @@ export function DiscussionsSidebar({
       {isAdmin && (
         <div className="mt-4 flex flex-col">
           <h3 className="mb-2 px-4 text-sm font-medium text-gray-500">Quản trị</h3>
+          <button
+            onClick={() => onViewChange('topic-management')}
+            className={cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2 text-base text-gray-700 transition-colors hover:bg-gray-100',
+              activeView === 'topic-management' && 'bg-gray-100 font-semibold text-gray-900'
+            )}
+          >
+            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-[14px]">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 6h.008v.008H6V6Z" />
+              </svg>
+            </span>
+            Quản lý chủ đề
+          </button>
           <button
             onClick={() => onViewChange('user-management')}
             className={cn(

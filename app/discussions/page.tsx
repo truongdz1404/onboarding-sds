@@ -8,6 +8,7 @@ import { CommentIcon } from '@/components/icons/comment-icon'
 import { DiscussionsSidebar, type DiscussionView } from '@/components/discussions/discussions-sidebar'
 import { ModerationView } from '@/components/discussions/moderation-view'
 import { UserManagementView } from '@/components/discussions/user-management-view'
+import { TopicManagementView } from '@/components/discussions/topic-management-view'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 import type { DiscussionPost } from '@/lib/discussion-types'
@@ -92,6 +93,9 @@ function DiscussionsContent() {
 
             {/* ── User management view ── */}
             {activeView === 'user-management' && <UserManagementView />}
+
+            {/* ── Topic management view ── */}
+            {activeView === 'topic-management' && <TopicManagementView />}
 
             {/* ── Main posts content ── */}
             {activeView === 'posts' && (
