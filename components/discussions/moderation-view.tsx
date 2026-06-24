@@ -102,7 +102,7 @@ export function ModerationView() {
         </div>
       ) : posts.length === 0 ? (
         <div className="py-28 text-center">
-          <p className="mb-3 text-5xl">{tab === 'pending' ? '✅' : '📋'}</p>
+          <p className="mb-3 text-5xl">{tab === 'pending' ? '😿' : '📋'}</p>
           <p className="text-xl font-bold text-[#1f2937]">
             {tab === 'pending' ? 'Không có bài nào chờ duyệt' : 'Chưa có bài nào được duyệt'}
           </p>

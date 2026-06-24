@@ -10,22 +10,23 @@ import { ProfileOverview } from '@/components/profile/profile-overview'
 import { PROFILE_TABS, type ProfileTab, type UserProfile } from '@/lib/profile-types'
 import type { DiscussionPost } from '@/lib/discussion-types'
 import { cn } from '@/lib/utils'
+import { CommentIcon } from '@/components/icons/comment-icon'
 
 async function getIdToken() {
   const { auth } = await import('@/lib/firebase-client')
   return auth.currentUser?.getIdToken() ?? null
 }
 
-const EMPTY_MESSAGES: Record<ProfileTab, { emoji: string; title: string; desc: string }> = {
-  overview:   { emoji: '👤', title: '', desc: '' },
-  posts:      { emoji: '📝', title: 'Chưa có bài viết nào', desc: 'Hãy bắt đầu một thread mới!' },
-  comments:   { emoji: '💬', title: 'Chưa bình luận bài nào', desc: 'Tham gia thảo luận trong diễn đàn.' },
-  saved:      { emoji: '🔖', title: 'Chưa lưu bài nào', desc: 'Nhấn «Lưu» trên bài viết để lưu lại.' },
-  history:    { emoji: '🕐', title: 'Chưa có lịch sử', desc: 'Các bài bạn xem sẽ hiện ở đây.' },
-  hidden:     { emoji: '📦', title: 'Chưa có bài ẩn', desc: 'Các bài bạn lưu trữ sẽ hiện ở đây.' },
-  upvoted:    { emoji: '👍', title: 'Chưa thích bài nào', desc: 'Các bài bạn upvote sẽ hiện ở đây.' },
-  downvoted:  { emoji: '👎', title: 'Chưa không thích bài nào', desc: 'Các bài bạn downvote sẽ hiện ở đây.' },
-  pending:    { emoji: '⏳', title: 'Không có bài nào chờ duyệt', desc: 'Bài viết chờ kiểm duyệt sẽ hiện ở đây.' },
+const EMPTY_MESSAGES: Record<ProfileTab, { icon: React.ReactNode; title: string; desc: string }> = {
+  overview:   { icon: '👤', title: '', desc: '' },
+  posts:      { icon: '📝', title: 'Chưa có bài viết nào', desc: 'Hãy bắt đầu một thread mới!' },
+  comments:   { icon: <CommentIcon width={36} height={36} className="mx-auto text-gray-400" />, title: 'Chưa bình luận bài nào', desc: 'Tham gia thảo luận trong diễn đàn.' },
+  saved:      { icon: '🔖', title: 'Chưa lưu bài nào', desc: 'Nhấn «Lưu» trên bài viết để lưu lại.' },
+  history:    { icon: '🕐', title: 'Chưa có lịch sử', desc: 'Các bài bạn xem sẽ hiện ở đây.' },
+  hidden:     { icon: '📦', title: 'Chưa có bài ẩn', desc: 'Các bài bạn lưu trữ sẽ hiện ở đây.' },
+  upvoted:    { icon: '👍', title: 'Chưa thích bài nào', desc: 'Các bài bạn upvote sẽ hiện ở đây.' },
+  downvoted:  { icon: '👎', title: 'Chưa không thích bài nào', desc: 'Các bài bạn downvote sẽ hiện ở đây.' },
+  pending:    { icon: '⏳', title: 'Không có bài nào chờ duyệt', desc: 'Bài viết chờ kiểm duyệt sẽ hiện ở đây.' },
 }
 
 export default function ProfilePageClient() {
@@ -163,7 +164,7 @@ export default function ProfilePageClient() {
               </div>
             ) : posts.length === 0 ? (
               <div className="py-20 text-center">
-                <p className="mb-2 text-4xl">{empty.emoji}</p>
+                <div className="mb-2 flex justify-center text-4xl">{empty.icon}</div>
                 <p className="font-semibold text-gray-800">{empty.title}</p>
                 <p className="mt-1 text-sm text-gray-400">{empty.desc}</p>
               </div>

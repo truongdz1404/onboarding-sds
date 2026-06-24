@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { CommentIcon } from '@/components/icons/comment-icon'
 import { Loader2 } from 'lucide-react'
 import { timeAgo } from '@/lib/time-utils'
 import { useAuth } from '@/lib/auth-context'
@@ -430,7 +431,7 @@ export function CommentSection({ postId }: { postId: string }) {
         </div>
       ) : tree.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="mb-2 text-3xl">💬</p>
+          <CommentIcon className="mx-auto mb-2 text-gray-400" width={32} height={32} />
           <p className="font-semibold text-gray-800">Chưa có bình luận nào</p>
           <p className="mt-1 text-sm text-gray-400">Hãy là người đầu tiên chia sẻ!</p>
         </div>

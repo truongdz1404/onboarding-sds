@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Plus, ChevronDown, MessageSquare } from 'lucide-react'
 import { PostCard } from '@/components/discussions/post-card'
+import { CommentIcon } from '@/components/icons/comment-icon'
 import { DiscussionsSidebar, type DiscussionView } from '@/components/discussions/discussions-sidebar'
 import { ModerationView } from '@/components/discussions/moderation-view'
 import { UserManagementView } from '@/components/discussions/user-management-view'
@@ -167,7 +168,7 @@ function DiscussionsContent() {
                   </div>
                 ) : displayed.length === 0 ? (
                   <div className="py-28 text-center">
-                    <p className="mb-3 text-5xl">💬</p>
+                    <CommentIcon className="mx-auto mb-3 text-gray-400" width={48} height={48} />
                     <p className="text-xl font-bold text-[#1f2937]">
                       {activeCategory ? `Chưa có bài nào trong "${activeCategory}"` : 'Chưa có bài nào'}
                     </p>
