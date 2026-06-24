@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/firebase-admin'
+import { verifyRequest } from '@/lib/verify-token'
+
+async function getRole(uid: string) {
+  const snap = await db.ref(`userRoles/${uid}/role`).get()
+  return (snap.val() as string) ?? 'user'
+}
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -11,6 +17,16 @@ export async function GET(
     if (!snapshot.exists()) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     const d = snapshot.val() as Record<string, unknown>
+
+    if (d.status === 'pending') {
+      const decoded = await verifyRequest(req)
+      if (!decoded) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+      const role = await getRole(decoded.uid)
+      if (role !== 'admin' && role !== 'moderator' && decoded.uid !== (d.uid as string)) {
+        return NextResponse.json({ error: 'Not found' }, { status: 404 })
+      }
+    }
+
     return NextResponse.json({
       post: {
         id,
@@ -26,6 +42,8 @@ export async function GET(
         upvoteCount: (d.upvoteCount as number) ?? 0,
         commentCount: (d.commentCount as number) ?? 0,
         createdAt: new Date(d.createdAt as number).toISOString(),
+        status: (d.status as string) ?? undefined,
+        moderatedAt: d.moderatedAt ? new Date(d.moderatedAt as number).toISOString() : undefined,
       },
     })
   } catch (err) {

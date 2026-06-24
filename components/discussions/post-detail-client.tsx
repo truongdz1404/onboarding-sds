@@ -29,11 +29,22 @@ async function getIdToken() {
 
 export function PostDetailClient({ post }: { post: DiscussionPost }) {
   const router = useRouter()
-  const { user, requireAuth } = useAuth()
+  const { user, userRole, loading: authLoading, requireAuth } = useAuth()
   const [userVote, setUserVote]         = useState<UserVote>(null)
   const [voteCount, setVoteCount]     = useState(post.upvoteCount)
   const [voteLoading, setVoteLoading] = useState(false)
   const [isSaved, setIsSaved]         = useState(false)
+
+  const isPending = post.status === 'pending'
+  const isCreator = !!user && user.uid === post.uid
+  const canView = !isPending || isCreator || userRole === 'admin' || userRole === 'moderator'
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!canView) {
+      router.replace('/discussions')
+    }
+  }, [authLoading, canView, router])
 
   useEffect(() => {
     if (!user) {
@@ -97,6 +108,14 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
 
   const meta = CATEGORY_META[post.category] ?? { slug: 'chung', bg: 'bg-sky-100', fg: 'text-sky-600' }
 
+  if (authLoading || !canView) {
+    return (
+      <div className="flex min-h-screen items-center justify-center pt-28">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white pt-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-16">
@@ -107,6 +126,13 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
             activeCategory={null}
             onCategoryChange={(cat) => router.push(cat ? `/discussions?category=${cat}` : '/discussions')}
             onNewThread={() => requireAuth(() => router.push('/discussions/new'))}
+            userRole={userRole}
+            activeView="posts"
+            onViewChange={(view) => {
+              if (view === 'moderation') router.push('/discussions?view=moderation')
+              else if (view === 'user-management') router.push('/discussions?view=user-management')
+              else router.push('/discussions')
+            }}
           />
 
           {/* Main content */}
@@ -140,7 +166,9 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
                 <div className="flex items-center gap-1.5 text-[13px]">
                   <span className="font-bold text-gray-900">p/{meta.slug}</span>
                   <span className="text-gray-300 text-xs">•</span>
-                  <time className="text-gray-500 text-[12px]">{timeAgo(post.createdAt)}</time>
+                  <time className="text-gray-500 text-[12px]">
+                    {timeAgo(post.status === 'approved' && post.moderatedAt ? post.moderatedAt : post.createdAt)}
+                  </time>
                 </div>
                 <div className="flex items-center gap-1 mt-0.5">
                   {post.photoURL && !post.isAnonymous ? (
@@ -185,8 +213,18 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
             />
           )}
 
-          {/* Action bar */}
-          <div className="flex items-center gap-2 py-3">
+          {/* Pending banner */}
+          {isPending && (
+            <div className="mb-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-4 flex-shrink-0">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+              </svg>
+              Bài viết đang chờ kiểm duyệt, chưa hiển thị công khai.
+            </div>
+          )}
+
+          {/* Action bar — hidden for pending posts */}
+          {!isPending && <div className="flex items-center gap-2 py-3">
 
             {/* Vote group pill: ↑ count ↓ */}
             <div className="flex items-center overflow-hidden rounded-full border border-gray-200 bg-white text-sm font-semibold text-gray-700">
@@ -249,16 +287,17 @@ export function PostDetailClient({ post }: { post: DiscussionPost }) {
               </svg>
               <span>Share</span>
             </button>
-
-          </div>
+          </div>}
 
           <div className="border-t border-[#f0f0f0]" />
         </div>
 
-        {/* ── Comments ── */}
-        <div id="comments" className="bg-white pt-6 pb-16">
-          <CommentSection postId={post.id} />
-        </div>
+        {/* ── Comments — hidden for pending posts ── */}
+        {!isPending && (
+          <div id="comments" className="bg-white pt-6 pb-16">
+            <CommentSection postId={post.id} />
+          </div>
+        )}
 
           </div>{/* end main content */}
         </div>{/* end flex */}

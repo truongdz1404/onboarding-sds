@@ -2,6 +2,8 @@ import type { UserVote } from '@/lib/vote-helpers'
 
 export type { UserVote } from '@/lib/vote-helpers'
 
+export type PostStatus = 'pending' | 'approved' | 'rejected'
+
 export type DiscussionPost = {
   id: string
   title: string
@@ -19,6 +21,8 @@ export type DiscussionPost = {
   userVote?: UserVote
   archived?: boolean
   isSaved?: boolean
+  status?: PostStatus
+  moderatedAt?: string
 }
 
 

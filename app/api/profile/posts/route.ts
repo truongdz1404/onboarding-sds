@@ -14,14 +14,18 @@ export async function GET(req: NextRequest) {
     const uid = decoded.uid
     let postIds: string[] = []
 
-    if (tab === 'posts' || tab === 'hidden') {
+    if (tab === 'posts' || tab === 'hidden' || tab === 'pending') {
       const snap = await db.ref('discussions').get()
       if (snap.exists()) {
         snap.forEach((child) => {
           const d = child.val() as Record<string, unknown>
           if (d.uid !== uid) return
-          if (tab === 'posts' && d.archived) return
+          if (tab === 'posts') {
+            if (d.archived) return
+            if (d.status === 'pending' || d.status === 'rejected') return
+          }
           if (tab === 'hidden' && !d.archived) return
+          if (tab === 'pending' && d.status !== 'pending') return
           postIds.push(child.key!)
         })
       }

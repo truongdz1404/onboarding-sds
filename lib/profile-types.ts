@@ -3,6 +3,8 @@ export type ProfileLink = {
   url: string
 }
 
+export type UserRole = 'admin' | 'moderator' | 'user'
+
 export type UserProfile = {
   uid: string
   name: string
@@ -12,6 +14,7 @@ export type UserProfile = {
   links: ProfileLink[]
   photoURL?: string
   email?: string
+  role?: UserRole
 }
 
 export type ProfileTab =
@@ -23,6 +26,7 @@ export type ProfileTab =
   | 'hidden'
   | 'upvoted'
   | 'downvoted'
+  | 'pending'
 
 export const PROFILE_TABS: { id: ProfileTab; label: string }[] = [
   { id: 'overview',   label: 'Tổng quan' },
@@ -33,4 +37,5 @@ export const PROFILE_TABS: { id: ProfileTab; label: string }[] = [
   { id: 'hidden',     label: 'Đã ẩn' },
   { id: 'upvoted',    label: 'Đã thích' },
   { id: 'downvoted',  label: 'Đã không thích' },
+  { id: 'pending',    label: 'Chờ duyệt' },
 ]

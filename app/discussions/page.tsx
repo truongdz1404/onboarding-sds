@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Plus, ChevronDown, MessageSquare } from 'lucide-react'
 import { PostCard } from '@/components/discussions/post-card'
-import { DiscussionsSidebar } from '@/components/discussions/discussions-sidebar'
+import { DiscussionsSidebar, type DiscussionView } from '@/components/discussions/discussions-sidebar'
+import { ModerationView } from '@/components/discussions/moderation-view'
+import { UserManagementView } from '@/components/discussions/user-management-view'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 import type { DiscussionPost } from '@/lib/discussion-types'
@@ -21,11 +23,17 @@ const SORT_OPTIONS = [
 
 export default function DiscussionsPage() {
   const router = useRouter()
-  const { user, requireAuth } = useAuth()
+  const searchParams = useSearchParams()
+  const { user, requireAuth, userRole } = useAuth()
   const [posts, setPosts]             = useState<DiscussionPost[]>([])
   const [sort, setSort]               = useState('newest')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [fetching, setFetching]       = useState(true)
+
+  const viewParam = searchParams.get('view') as DiscussionView | null
+  const [activeView, setActiveView]   = useState<DiscussionView>(
+    viewParam === 'moderation' || viewParam === 'user-management' ? viewParam : 'posts'
+  )
 
   const fetchPosts = useCallback(async () => {
     setFetching(true)
@@ -41,10 +49,21 @@ export default function DiscussionsPage() {
     }
   }, [sort, user])
 
-  useEffect(() => { fetchPosts() }, [fetchPosts])
+  useEffect(() => {
+    if (activeView === 'posts') fetchPosts()
+  }, [fetchPosts, activeView])
 
   function openNewThread() {
     requireAuth(() => router.push('/discussions/new'))
+  }
+
+  function handleViewChange(view: DiscussionView) {
+    setActiveView(view)
+  }
+
+  function handleCategoryChange(cat: string | null) {
+    setActiveCategory(cat)
+    setActiveView('posts')
   }
 
   const displayed = activeCategory
@@ -60,112 +79,122 @@ export default function DiscussionsPage() {
             {/* ── Sidebar ── */}
             <DiscussionsSidebar
               activeCategory={activeCategory}
-              onCategoryChange={setActiveCategory}
+              onCategoryChange={handleCategoryChange}
               onNewThread={openNewThread}
+              userRole={userRole}
+              activeView={activeView}
+              onViewChange={handleViewChange}
             />
 
-            {/* ── Main content ── */}
-            <div className="flex-1 min-w-0">
+            {/* ── Moderation view ── */}
+            {activeView === 'moderation' && <ModerationView />}
 
-              {/* Banner card */}
-              <div className="mb-6 flex items-center justify-between rounded-2xl border border-[#f0f0f0] bg-white px-6 py-5 shadow-sm">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/30">
-                    <MessageSquare size={24} strokeWidth={2} />
-                  </div>
-                  <div>
-                    <h1 className="font-bold text-[#1f2937]" style={{ fontSize: '17px', lineHeight: '1.3' }}>
-                      {activeCategory ? `p/${activeCategory.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}` : 'Kết nối cùng đồng nghiệp SoftDreams'}
-                    </h1>
-                    <p className="mt-0.5 text-[13px] text-[#6b7280]">
-                      {activeCategory
-                        ? `${displayed.length} bài trong chủ đề này`
-                        : 'Bắt đầu một thread, tham gia thảo luận, cập nhật thông tin.'}
-                    </p>
-                  </div>
-                </div>
+            {/* ── User management view ── */}
+            {activeView === 'user-management' && <UserManagementView />}
 
-                <button
-                  onClick={openNewThread}
-                  className="flex flex-shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-md hover:shadow-primary/30"
-                >
-                  <Plus size={15} strokeWidth={2.5} />
-                  Tạo bài viết
-                </button>
-              </div>
+            {/* ── Main posts content ── */}
+            {activeView === 'posts' && (
+              <div className="flex-1 min-w-0">
 
-              {/* Sort tabs */}
-              <div className="relative mb-0 flex items-center border-b border-[#f0f0f0] pb-0">
-                {SORT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setSort(opt.value)}
-                    className={cn(
-                      'flex items-center gap-1.5 border-b-2 px-1 pb-3 pr-4 text-[13px] font-semibold transition-colors',
-                      sort === opt.value
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-[#6b7280] hover:text-[#374151]',
-                    )}
-                  >
-                    {opt.label}
-                    {sort === opt.value && <ChevronDown size={13} />}
-                  </button>
-                ))}
-                {!fetching && (
-                  <span className="ml-auto pb-3 text-[12px] text-[#9ca3af]">
-                    {displayed.length} bài
-                  </span>
-                )}
-              </div>
-
-              {/* Thread list */}
-              {fetching ? (
-                <div>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="flex gap-3 rounded-xl p-4">
-                      <div className="flex-1 space-y-2">
-                        <div className="h-3 w-40 animate-pulse rounded bg-gray-100" />
-                        <div className="h-4 w-3/4 animate-pulse rounded bg-gray-100" />
-                        <div className="h-3 w-full animate-pulse rounded bg-gray-100" />
-                        <div className="h-3 w-2/3 animate-pulse rounded bg-gray-100" />
-                      </div>
-                      <div className="flex flex-shrink-0 gap-1.5">
-                        <div className="h-14 w-12 animate-pulse rounded-xl bg-gray-100" />
-                        <div className="h-14 w-12 animate-pulse rounded-xl bg-gray-100" />
-                      </div>
+                {/* Banner card */}
+                <div className="mb-6 flex items-center justify-between rounded-2xl border border-[#f0f0f0] bg-white px-6 py-5 shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/30">
+                      <MessageSquare size={24} strokeWidth={2} />
                     </div>
-                  ))}
-                </div>
-              ) : displayed.length === 0 ? (
-                <div className="py-28 text-center">
-                  <p className="mb-3 text-5xl">💬</p>
-                  <p className="text-xl font-bold text-[#1f2937]">
-                    {activeCategory ? `Chưa có bài nào trong "${activeCategory}"` : 'Chưa có bài nào'}
-                  </p>
-                  <p className="mt-2 text-[#6b7280]">Hãy là người đầu tiên chia sẻ!</p>
+                    <div>
+                      <h1 className="font-bold text-[#1f2937]" style={{ fontSize: '17px', lineHeight: '1.3' }}>
+                        {activeCategory ? `p/${activeCategory.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}` : 'Kết nối cùng đồng nghiệp SoftDreams'}
+                      </h1>
+                      <p className="mt-0.5 text-[13px] text-[#6b7280]">
+                        {activeCategory
+                          ? `${displayed.length} bài trong chủ đề này`
+                          : 'Bắt đầu một thread, tham gia thảo luận, cập nhật thông tin.'}
+                      </p>
+                    </div>
+                  </div>
+
                   <button
                     onClick={openNewThread}
-                    className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
+                    className="flex flex-shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-md hover:shadow-primary/30"
                   >
-                    <Plus size={15} /> Tạo bài viết
+                    <Plus size={15} strokeWidth={2.5} />
+                    Tạo bài viết
                   </button>
                 </div>
-              ) : (
-                displayed.map((post) => (
-                  <PostCard key={post.id} post={post} userVote={post.userVote ?? null} />
-                ))
-              )}
 
-              {displayed.length > 0 && !fetching && (
-                <div className="py-10 text-center">
-                  <p className="text-sm text-[#9ca3af]">Đã xem hết {displayed.length} bài</p>
+                {/* Sort tabs */}
+                <div className="relative mb-0 flex items-center border-b border-[#f0f0f0] pb-0">
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSort(opt.value)}
+                      className={cn(
+                        'flex items-center gap-1.5 border-b-2 px-1 pb-3 pr-4 text-[13px] font-semibold transition-colors',
+                        sort === opt.value
+                          ? 'border-primary text-primary'
+                          : 'border-transparent text-[#6b7280] hover:text-[#374151]',
+                      )}
+                    >
+                      {opt.label}
+                      {sort === opt.value && <ChevronDown size={13} />}
+                    </button>
+                  ))}
+                  {!fetching && (
+                    <span className="ml-auto pb-3 text-[12px] text-[#9ca3af]">
+                      {displayed.length} bài
+                    </span>
+                  )}
                 </div>
-              )}
-            </div>
+
+                {/* Thread list */}
+                {fetching ? (
+                  <div>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="flex gap-3 rounded-xl p-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 w-40 animate-pulse rounded bg-gray-100" />
+                          <div className="h-4 w-3/4 animate-pulse rounded bg-gray-100" />
+                          <div className="h-3 w-full animate-pulse rounded bg-gray-100" />
+                          <div className="h-3 w-2/3 animate-pulse rounded bg-gray-100" />
+                        </div>
+                        <div className="flex flex-shrink-0 gap-1.5">
+                          <div className="h-14 w-12 animate-pulse rounded-xl bg-gray-100" />
+                          <div className="h-14 w-12 animate-pulse rounded-xl bg-gray-100" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : displayed.length === 0 ? (
+                  <div className="py-28 text-center">
+                    <p className="mb-3 text-5xl">💬</p>
+                    <p className="text-xl font-bold text-[#1f2937]">
+                      {activeCategory ? `Chưa có bài nào trong "${activeCategory}"` : 'Chưa có bài nào'}
+                    </p>
+                    <p className="mt-2 text-[#6b7280]">Hãy là người đầu tiên chia sẻ!</p>
+                    <button
+                      onClick={openNewThread}
+                      className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
+                    >
+                      <Plus size={15} /> Tạo bài viết
+                    </button>
+                  </div>
+                ) : (
+                  displayed.map((post) => (
+                    <PostCard key={post.id} post={post} userVote={post.userVote ?? null} />
+                  ))
+                )}
+
+                {displayed.length > 0 && !fetching && (
+                  <div className="py-10 text-center">
+                    <p className="text-sm text-[#9ca3af]">Đã xem hết {displayed.length} bài</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
-
     </>
   )
 }

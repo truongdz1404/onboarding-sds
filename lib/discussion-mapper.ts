@@ -20,6 +20,8 @@ export function mapDiscussionPost(
     commentCount: (d.commentCount as number) ?? 0,
     createdAt: new Date(d.createdAt as number).toISOString(),
     archived: (d.archived as boolean) ?? false,
+    status: (d.status as 'pending' | 'approved' | 'rejected') ?? undefined,
+    moderatedAt: d.moderatedAt ? new Date(d.moderatedAt as number).toISOString() : undefined,
     userVote: extras?.userVote ?? null,
     isSaved: extras?.isSaved ?? false,
   }

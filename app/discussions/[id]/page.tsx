@@ -29,6 +29,8 @@ export default async function PostPage({
     upvoteCount: (d.upvoteCount as number) ?? 0,
     commentCount: (d.commentCount as number) ?? 0,
     createdAt: new Date(d.createdAt as number).toISOString(),
+    status: (d.status as 'pending' | 'approved' | 'rejected') ?? undefined,
+    moderatedAt: d.moderatedAt ? new Date(d.moderatedAt as number).toISOString() : undefined,
   }
 
   return <PostDetailClient post={post} />

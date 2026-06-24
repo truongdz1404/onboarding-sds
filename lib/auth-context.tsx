@@ -3,12 +3,14 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { User, onAuthStateChanged, signOut as fbSignOut } from 'firebase/auth'
 import { auth, signInWithGoogleCentered } from './firebase-client'
+import type { UserRole } from './profile-types'
 
 type PendingAction = (() => void) | null
 
 type AuthCtx = {
   user: User | null
   loading: boolean
+  userRole: UserRole | null
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
   /* Call this to protect an action — opens login modal if not authed */
@@ -20,6 +22,7 @@ type AuthCtx = {
 const Ctx = createContext<AuthCtx>({
   user: null,
   loading: true,
+  userRole: null,
   signInWithGoogle: async () => {},
   signOut: async () => {},
   requireAuth: () => {},
@@ -30,13 +33,26 @@ const Ctx = createContext<AuthCtx>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<UserRole | null>(null)
   const [loginModalOpen, setLoginModalOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   useEffect(() => {
     return onAuthStateChanged(auth, (u) => {
       setUser(u)
-      setLoading(false)
+      if (!u) {
+        setUserRole(null)
+        setLoading(false)
+        return
+      }
+      u.getIdToken()
+        .then((token) =>
+          fetch('/api/auth/role', { headers: { Authorization: `Bearer ${token}` } })
+            .then((r) => r.json())
+            .then((data) => setUserRole(data.role ?? 'user'))
+            .catch(() => setUserRole('user')),
+        )
+        .finally(() => setLoading(false))
     })
   }, [])
 
@@ -76,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider
-      value={{ user, loading, signInWithGoogle, signOut, requireAuth, loginModalOpen, closeLoginModal }}
+      value={{ user, loading, userRole, signInWithGoogle, signOut, requireAuth, loginModalOpen, closeLoginModal }}
     >
       {children}
     </Ctx.Provider>

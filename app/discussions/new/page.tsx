@@ -25,7 +25,7 @@ const CATEGORIES = [
 
 export default function NewPostPage() {
   const router = useRouter()
-  const { user, loading, requireAuth } = useAuth()
+  const { user, loading, requireAuth, userRole } = useAuth()
 
   const [title, setTitle]           = useState('')
   const [body, setBody]             = useState('')
@@ -85,6 +85,13 @@ export default function NewPostPage() {
             activeCategory={null}
             onCategoryChange={(cat) => router.push(cat ? `/discussions?category=${cat}` : '/discussions')}
             onNewThread={() => {}}
+            userRole={userRole}
+            activeView="posts"
+            onViewChange={(view) => {
+              if (view === 'moderation') router.push('/discussions?view=moderation')
+              else if (view === 'user-management') router.push('/discussions?view=user-management')
+              else router.push('/discussions')
+            }}
           />
 
           {/* Form */}

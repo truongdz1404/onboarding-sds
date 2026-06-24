@@ -107,6 +107,7 @@ export function PostCard({
     fg: "text-sky-600",
   };
   const plainDesc = post.description ? stripHtml(post.description) : "";
+  const isPending = post.status === "pending";
 
   return (
     <div className="group relative cursor-pointer rounded-xl bg-white px-4 py-3 my-1 transition-colors duration-150 hover:bg-[#f6f7f8]"
@@ -128,6 +129,11 @@ export function PostCard({
             <span className={cn("font-semibold text-gray-800")}>
               p/{meta.slug}
             </span>
+            {isPending && (
+              <span className="flex-shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                Chờ duyệt
+              </span>
+            )}
             <span className="text-gray-400">•</span>
             <span>đăng bởi</span>
 
@@ -150,7 +156,7 @@ export function PostCard({
             </span>
             <span className="text-gray-400">•</span>
             <time className="flex-shrink-0 text-gray-500">
-              {timeAgo(post.createdAt)}
+              {timeAgo(post.status === 'approved' && post.moderatedAt ? post.moderatedAt : post.createdAt)}
             </time>
           </div>
           <PostActionsMenu
@@ -174,86 +180,61 @@ export function PostCard({
           </p>
         )}
 
-        {/* ── Action bar ── */}
-        <div className="relative z-10 flex items-center gap-2 pt-1">
-          {/* Vote group pill: ↑ count ↓ */}
-          <div className="flex items-center overflow-hidden rounded-full border border-gray-200 bg-white text-sm font-semibold text-gray-700">
-            <button
-              onClick={(e) => handleVote(e, "up")}
-              disabled={loading}
-              className={cn(
-                "flex items-center gap-1 px-3 py-1.5 transition-colors disabled:opacity-50 hover:bg-gray-50",
-                userVote === "up" && "text-primary",
-              )}
-            >
-              <svg
-                fill="currentColor"
-                height="16"
-                viewBox="0 0 20 20"
-                width="16"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {userVote === "up" ? (
-                  <path d="M10 19a3.966 3.966 0 01-3.96-3.962V10.98H2.838a1.731 1.731 0 01-1.605-1.073 1.734 1.734 0 01.377-1.895L9.364.254a.925.925 0 011.272 0l7.754 7.759c.498.499.646 1.242.376 1.894-.27.652-.9 1.073-1.605 1.073h-3.202v4.058A3.965 3.965 0 019.999 19H10z" />
-                ) : (
-                  <path d="M10 19a3.966 3.966 0 01-3.96-3.962V10.98H2.838a1.731 1.731 0 01-1.605-1.073 1.734 1.734 0 01.377-1.895L9.364.254a.925.925 0 011.272 0l7.754 7.759c.498.499.646 1.242.376 1.894-.27.652-.9 1.073-1.605 1.073h-3.202v4.058A3.965 3.965 0 019.999 19H10zM2.989 9.179H7.84v5.731c0 1.13.81 2.163 1.934 2.278a2.163 2.163 0 002.386-2.15V9.179h4.851L10 2.163 2.989 9.179z" />
+        {/* ── Action bar ── hidden for pending posts */}
+        {!isPending && (
+          <div className="relative z-10 flex items-center gap-2 pt-1">
+            {/* Vote group pill */}
+            <div className="flex items-center overflow-hidden rounded-full border border-gray-200 bg-white text-sm font-semibold text-gray-700">
+              <button
+                onClick={(e) => handleVote(e, "up")}
+                disabled={loading}
+                className={cn(
+                  "flex items-center gap-1 px-3 py-1.5 transition-colors disabled:opacity-50 hover:bg-gray-50",
+                  userVote === "up" && "text-primary",
                 )}
-              </svg>
-            </button>
-            <span
-              className={cn(
-                "px-1 tabular-nums",
-                userVote === "up"
-                  ? "text-primary"
-                  : userVote === "down"
-                    ? "text-red-500"
-                    : "text-gray-700",
-              )}
-            >
-              {voteCount}
-            </span>
-            <button
-              onClick={(e) => handleVote(e, "down")}
-              disabled={loading}
-              className={cn(
-                "flex items-center px-3 py-1.5 transition-colors disabled:opacity-50 hover:bg-gray-50",
-                userVote === "down" && "text-red-500",
-              )}
-            >
-              <svg
-                fill="currentColor"
-                height="16"
-                viewBox="0 0 20 20"
-                width="16"
-                xmlns="http://www.w3.org/2000/svg"
               >
-                {userVote === "down" ? (
-                  <path d="M10 1a3.966 3.966 0 013.96 3.962V9.02h3.202c.706 0 1.335.42 1.605 1.073.27.652.122 1.396-.377 1.895l-7.754 7.759a.925.925 0 01-1.272 0l-7.754-7.76a1.734 1.734 0 01-.376-1.894c.27-.652.9-1.073 1.605-1.073h3.202V4.962A3.965 3.965 0 0110 1z" />
-                ) : (
-                  <path d="M10 1a3.966 3.966 0 013.96 3.962V9.02h3.202c.706 0 1.335.42 1.605 1.073.27.652.122 1.396-.377 1.895l-7.754 7.759a.925.925 0 01-1.272 0l-7.754-7.76a1.734 1.734 0 01-.376-1.894c.27-.652.9-1.073 1.605-1.073h3.202V4.962A3.965 3.965 0 0110 1zm7.01 9.82h-4.85V5.09c0-1.13-.81-2.163-1.934-2.278a2.163 2.163 0 00-2.386 2.15v5.859H2.989l7.01 7.016 7.012-7.016z" />
+                <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                  {userVote === "up" ? (
+                    <path d="M10 19a3.966 3.966 0 01-3.96-3.962V10.98H2.838a1.731 1.731 0 01-1.605-1.073 1.734 1.734 0 01.377-1.895L9.364.254a.925.925 0 011.272 0l7.754 7.759c.498.499.646 1.242.376 1.894-.27.652-.9 1.073-1.605 1.073h-3.202v4.058A3.965 3.965 0 019.999 19H10z" />
+                  ) : (
+                    <path d="M10 19a3.966 3.966 0 01-3.96-3.962V10.98H2.838a1.731 1.731 0 01-1.605-1.073 1.734 1.734 0 01.377-1.895L9.364.254a.925.925 0 011.272 0l7.754 7.759c.498.499.646 1.242.376 1.894-.27.652-.9 1.073-1.605 1.073h-3.202v4.058A3.965 3.965 0 019.999 19H10zM2.989 9.179H7.84v5.731c0 1.13.81 2.163 1.934 2.278a2.163 2.163 0 002.386-2.15V9.179h4.851L10 2.163 2.989 9.179z" />
+                  )}
+                </svg>
+              </button>
+              <span className={cn("px-1 tabular-nums", userVote === "up" ? "text-primary" : userVote === "down" ? "text-red-500" : "text-gray-700")}>
+                {voteCount}
+              </span>
+              <button
+                onClick={(e) => handleVote(e, "down")}
+                disabled={loading}
+                className={cn(
+                  "flex items-center px-3 py-1.5 transition-colors disabled:opacity-50 hover:bg-gray-50",
+                  userVote === "down" && "text-red-500",
                 )}
-              </svg>
-            </button>
-          </div>
+              >
+                <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                  {userVote === "down" ? (
+                    <path d="M10 1a3.966 3.966 0 013.96 3.962V9.02h3.202c.706 0 1.335.42 1.605 1.073.27.652.122 1.396-.377 1.895l-7.754 7.759a.925.925 0 01-1.272 0l-7.754-7.76a1.734 1.734 0 01-.376-1.894c.27-.652.9-1.073 1.605-1.073h3.202V4.962A3.965 3.965 0 0110 1z" />
+                  ) : (
+                    <path d="M10 1a3.966 3.966 0 013.96 3.962V9.02h3.202c.706 0 1.335.42 1.605 1.073.27.652.122 1.396-.377 1.895l-7.754 7.759a.925.925 0 01-1.272 0l-7.754-7.76a1.734 1.734 0 01-.376-1.894c.27-.652.9-1.073 1.605-1.073h3.202V4.962A3.965 3.965 0 0110 1zm7.01 9.82h-4.85V5.09c0-1.13-.81-2.163-1.934-2.278a2.163 2.163 0 00-2.386 2.15v5.859H2.989l7.01 7.016 7.012-7.016z" />
+                  )}
+                </svg>
+              </button>
+            </div>
 
-          {/* Comments pill */}
-          <Link
-            href={`/discussions/${post.id}#comments`}
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
-          >
-            <svg
-              fill="currentColor"
-              height="16"
-              viewBox="0 0 20 20"
-              width="16"
-              xmlns="http://www.w3.org/2000/svg"
+            {/* Comments pill */}
+            <Link
+              href={`/discussions/${post.id}#comments`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
             >
-              <path d="M10 1a9 9 0 00-9 9c0 1.947.79 3.58 1.935 4.957L.231 17.661A.784.784 0 00.785 19H10a9 9 0 009-9 9 9 0 00-9-9zm0 16.2H6.162c-.994.004-1.907.053-3.045.144l-.076-.188a36.981 36.981 0 002.328-2.087l-1.05-1.263C3.297 12.576 2.8 11.331 2.8 10c0-3.97 3.23-7.2 7.2-7.2s7.2 3.23 7.2 7.2-3.23 7.2-7.2 7.2z" />
-            </svg>
-            <span>{post.commentCount} bình luận</span>
-          </Link>
-        </div>
+              <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 1a9 9 0 00-9 9c0 1.947.79 3.58 1.935 4.957L.231 17.661A.784.784 0 00.785 19H10a9 9 0 009-9 9 9 0 00-9-9zm0 16.2H6.162c-.994.004-1.907.053-3.045.144l-.076-.188a36.981 36.981 0 002.328-2.087l-1.05-1.263C3.297 12.576 2.8 11.331 2.8 10c0-3.97 3.23-7.2 7.2-7.2s7.2 3.23 7.2 7.2-3.23 7.2-7.2 7.2z" />
+              </svg>
+              <span>{post.commentCount} bình luận</span>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

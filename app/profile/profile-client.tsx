@@ -25,6 +25,7 @@ const EMPTY_MESSAGES: Record<ProfileTab, { emoji: string; title: string; desc: s
   hidden:     { emoji: '📦', title: 'Chưa có bài ẩn', desc: 'Các bài bạn lưu trữ sẽ hiện ở đây.' },
   upvoted:    { emoji: '👍', title: 'Chưa thích bài nào', desc: 'Các bài bạn upvote sẽ hiện ở đây.' },
   downvoted:  { emoji: '👎', title: 'Chưa không thích bài nào', desc: 'Các bài bạn downvote sẽ hiện ở đây.' },
+  pending:    { emoji: '⏳', title: 'Không có bài nào chờ duyệt', desc: 'Bài viết chờ kiểm duyệt sẽ hiện ở đây.' },
 }
 
 export default function ProfilePageClient() {

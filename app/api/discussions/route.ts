@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
     snapshot.forEach((child) => {
       const d = child.val() as Record<string, unknown>
       if (d.archived) return
+      // hide pending/rejected posts from public feed (legacy posts without status = approved)
+      if (d.status && d.status !== 'approved') return
       posts.push(mapDiscussionPost(child.key!, d))
     })
 
@@ -70,6 +72,7 @@ export async function POST(req: NextRequest) {
       upvoteCount: 0,
       commentCount: 0,
       createdAt: Date.now(),
+      status: 'pending',
     })
 
     return NextResponse.json({ id: newRef.key })
