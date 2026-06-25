@@ -50,6 +50,7 @@ export function PostActionsMenu({
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [archiveLoading, setArchiveLoading] = useState(false)
   const [unarchiveLoading, setUnarchiveLoading] = useState(false)
+  const [hideOpen, setHideOpen] = useState(false)
   const [hideLoading, setHideLoading] = useState(false)
   const [publishLoading, setPublishLoading] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -124,7 +125,6 @@ export function PostActionsMenu({
   async function handleHide() {
     if (hideLoading) return
     setHideLoading(true)
-    setOpen(false)
     try {
       const token = await getIdToken()
       const res = await fetch(`/api/discussions/${postId}/hide`, {
@@ -132,6 +132,7 @@ export function PostActionsMenu({
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       if (res.ok) {
+        setHideOpen(false)
         toast.success('Đã ẩn bài viết')
         onHidden?.()
       }
@@ -253,7 +254,7 @@ export function PostActionsMenu({
             {/* Hide — mod/admin hides any post */}
             {isMod && !isHiddenByMod && !isDraft && (
               <button
-                onClick={(e) => { e.stopPropagation(); handleHide() }}
+                onClick={(e) => { e.stopPropagation(); setOpen(false); setHideOpen(true) }}
                 disabled={hideLoading}
                 className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
               >
@@ -275,6 +276,18 @@ export function PostActionsMenu({
         loading={archiveLoading}
         onConfirm={handleArchive}
         onCancel={() => setArchiveOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={hideOpen}
+        title="Ẩn bài viết?"
+        message="Bài viết sẽ bị ẩn khỏi diễn đàn. Người dùng sẽ không thể xem bài viết này cho đến khi được khôi phục."
+        confirmLabel="Ẩn bài viết"
+        cancelLabel="Huỷ"
+        destructive
+        loading={hideLoading}
+        onConfirm={handleHide}
+        onCancel={() => setHideOpen(false)}
       />
     </>
   )

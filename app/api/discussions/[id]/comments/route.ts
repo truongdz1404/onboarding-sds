@@ -16,11 +16,14 @@ type FlatComment = {
   author: string
   authorInitials: string
   photoURL: string | null
+  uid: string | null
   isAnonymous: boolean
   createdAt: string
   parentId: string | null
   upvoteCount: number
   userVote: ReturnType<typeof toUserVote>
+  deleted: boolean
+  isEdited: boolean
 }
 
 export async function GET(
@@ -51,6 +54,26 @@ export async function GET(
     if (snapshot.exists()) {
       snapshot.forEach((child) => {
         const d = child.val() as Record<string, unknown>
+        const isDeleted = (d.deleted as boolean) ?? false
+        if (isDeleted) {
+          allFlat.push({
+            id: child.key!,
+            postId: id,
+            content: '',
+            author: '',
+            authorInitials: '',
+            photoURL: null,
+            uid: null,
+            isAnonymous: false,
+            createdAt: new Date(d.createdAt as number).toISOString(),
+            parentId: (d.parentId as string) ?? null,
+            upvoteCount: 0,
+            userVote: null,
+            deleted: true,
+            isEdited: false,
+          })
+          return
+        }
         allFlat.push({
           id: child.key!,
           postId: id,
@@ -58,11 +81,14 @@ export async function GET(
           author: d.isAnonymous ? 'Ẩn danh' : (d.author as string),
           authorInitials: d.isAnonymous ? '?' : (d.authorInitials as string),
           photoURL: d.isAnonymous ? null : ((d.photoURL as string) ?? null),
+          uid: d.isAnonymous ? null : ((d.uid as string) ?? null),
           isAnonymous: (d.isAnonymous as boolean) ?? false,
           createdAt: new Date(d.createdAt as number).toISOString(),
           parentId: (d.parentId as string) ?? null,
           upvoteCount: (d.upvoteCount as number) ?? 0,
           userVote: userVotes[child.key!] ?? null,
+          deleted: false,
+          isEdited: (d.isEdited as boolean) ?? false,
         })
       })
     }

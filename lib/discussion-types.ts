@@ -54,10 +54,12 @@ export type DiscussionComment = {
   author: string
   authorInitials: string
   photoURL?: string
-  uid?: string
+  uid?: string | null
   isAnonymous?: boolean
   createdAt: string
   parentId?: string | null
   upvoteCount: number
   userVote?: UserVote
+  deleted?: boolean
+  isEdited?: boolean
 }

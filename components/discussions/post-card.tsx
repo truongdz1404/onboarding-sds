@@ -12,6 +12,7 @@ import { PostActionsMenu } from "./post-actions-menu";
 import { useRouter } from "next/navigation";
 import { CommentIcon } from "@/components/icons/comment-icon";
 import { ImageCarousel } from "./image-carousel";
+import { UserHoverCard } from "@/components/profile/user-hover-card";
 
 const CATEGORY_META: Record<string, { slug: string; bg: string; fg: string }> =
   {
@@ -180,23 +181,35 @@ export function PostCard({
             <span className="text-gray-400">•</span>
             <span>đăng bởi</span>
 
-            {/* Author avatar */}
-            {post.photoURL && !post.isAnonymous ? (
-              <img
-                src={post.photoURL}
-                alt={post.author}
-                className="h-4 w-4 flex-shrink-0 rounded-full object-cover"
-                referrerPolicy="no-referrer"
-              />
+            {/* Author avatar + name */}
+            {!post.isAnonymous && post.uid ? (
+              <UserHoverCard uid={post.uid}>
+                {post.photoURL ? (
+                  <img
+                    src={post.photoURL}
+                    alt={post.author}
+                    className="h-4 w-4 flex-shrink-0 rounded-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-[8px] font-bold text-primary">
+                    {post.authorInitials?.[0] ?? "?"}
+                  </span>
+                )}
+                <span className="max-w-[160px] truncate font-medium text-gray-700 sm:max-w-none">
+                  {post.author}
+                </span>
+              </UserHoverCard>
             ) : (
-              <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-[8px] font-bold text-primary">
-                {post.isAnonymous ? "?" : (post.authorInitials?.[0] ?? "?")}
-              </span>
+              <>
+                <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-[8px] font-bold text-primary">
+                  ?
+                </span>
+                <span className="max-w-[160px] truncate font-medium text-gray-700 sm:max-w-none">
+                  Ẩn danh
+                </span>
+              </>
             )}
-
-            <span className="max-w-[160px] truncate font-medium text-gray-700 sm:max-w-none">
-              {post.isAnonymous ? "Ẩn danh" : post.author}
-            </span>
             <span className="text-gray-400">•</span>
             <time className="flex-shrink-0 text-gray-500">
               {timeAgo(post.status === 'approved' && post.moderatedAt ? post.moderatedAt : post.createdAt)}

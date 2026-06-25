@@ -1,14 +1,17 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import Link from 'next/link'
 import { CommentIcon } from '@/components/icons/comment-icon'
-import { Loader2 } from 'lucide-react'
+import { Loader2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { timeAgo } from '@/lib/time-utils'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 import type { DiscussionComment, UserVote } from '@/lib/discussion-types'
 import type { VoteDirection } from '@/lib/vote-helpers'
 import { voteDelta, fromUserVote } from '@/lib/vote-helpers'
+import { UserHoverCard } from '@/components/profile/user-hover-card'
+import { ConfirmDialog } from '@/components/discussions/confirm-dialog'
 
 async function getIdToken() {
   const { auth } = await import('@/lib/firebase-client')
@@ -83,9 +86,9 @@ function ReplyBox({ postId, parentId, authorName, onDone }: {
 }
 
 /* ── Comment card ── */
-function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
+function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName, currentUid }: {
   comment: CommentNode; postId: string; onRefresh: () => void
-  depth?: number; replyToName?: string
+  depth?: number; replyToName?: string; currentUid?: string | null
 }) {
   const { requireAuth } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
@@ -93,13 +96,61 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
   const [userVote, setUserVote]         = useState<UserVote>(comment.userVote ?? null)
   const [voteCount, setVoteCount] = useState(comment.upvoteCount)
   const [voteLoading, setVoteLoading] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editContent, setEditContent] = useState(comment.content)
+  const [editSubmitting, setEditSubmitting] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { setUserVote(comment.userVote ?? null) }, [comment.userVote])
   useEffect(() => { setVoteCount(comment.upvoteCount) }, [comment.upvoteCount])
 
+  useEffect(() => {
+    if (!showMenu) return
+    function handler(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setShowMenu(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showMenu])
+
   const hasReplies    = comment.replies.length > 0
   const authorDisplay = comment.isAnonymous ? 'Ẩn danh' : comment.author
   const initials      = comment.isAnonymous ? '?' : (comment.authorInitials?.[0] ?? '?')
+  const isOwner       = !!currentUid && currentUid === comment.uid && !comment.deleted
+
+  async function confirmDelete() {
+    setDeleteLoading(true)
+    try {
+      const token = await getIdToken()
+      await fetch(`/api/discussions/${postId}/comments/${comment.id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      setDeleteDialogOpen(false)
+      onRefresh()
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
+  async function submitEdit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editContent.trim() || editSubmitting) return
+    setEditSubmitting(true)
+    try {
+      const token = await getIdToken()
+      await fetch(`/api/discussions/${postId}/comments/${comment.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ content: editContent.trim() }),
+      })
+      setEditing(false)
+      onRefresh()
+    } finally { setEditSubmitting(false) }
+  }
 
   async function handleVote(e: React.MouseEvent, direction: VoteDirection) {
     e.stopPropagation()
@@ -137,6 +188,73 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
     } finally { setVoteLoading(false) }
   }
 
+  /* ── Deleted comment ── */
+  if (comment.deleted) {
+    return (
+      <div>
+        <div className={cn('flex gap-2', hasReplies && !collapsed ? 'items-stretch' : 'items-start')}>
+          <div className="flex w-8 flex-shrink-0 flex-col items-center">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
+              <svg fill="currentColor" height="14" viewBox="0 0 20 20" width="14" className="text-gray-300" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 10a4 4 0 100-8 4 4 0 000 8zm0 2c-5.33 0-8 2.67-8 4v1h16v-1c0-1.33-2.67-4-8-4z" />
+              </svg>
+            </div>
+            {hasReplies && !collapsed
+              ? <div className="mt-1 w-0.5 flex-1 rounded-full bg-gray-200" />
+              : <div className="flex-1" />}
+            {hasReplies ? (
+              <button onClick={() => setCollapsed((v) => !v)}
+                className="flex-shrink-0 text-gray-300 transition-colors hover:text-gray-500">
+                {collapsed
+                  ? <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1a9 9 0 100 18 9 9 0 000-18zm0 16.2a7.2 7.2 0 117.2-7.2 7.208 7.208 0 01-7.2 7.2zm.9-8.1H14v1.8h-3.1V14H9.1v-3.1H6V9.1h3.1V6h1.8v3.1z" /></svg>
+                  : <svg fill="currentColor" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.8A7.2 7.2 0 112.8 10 7.208 7.208 0 0110 2.8zM10 1a9 9 0 100 18 9 9 0 000-18zm4 8.1H6v1.8h8V9.1z" /></svg>
+                }
+              </button>
+            ) : <div className="h-4 flex-shrink-0" />}
+          </div>
+          <div className="min-w-0 flex-1 pb-1 pt-2">
+            {collapsed ? (
+              <button onClick={() => setCollapsed(false)}
+                className="text-[12px] text-gray-400 hover:text-gray-600 transition-colors">
+                {comment.replies.length} trả lời bị ẩn — nhấn để mở
+              </button>
+            ) : (
+              <p className="text-[13px] italic text-gray-400">Bình luận không còn tồn tại</p>
+            )}
+          </div>
+        </div>
+        {!collapsed && hasReplies && (
+          depth < 2 ? (
+            <div className="ml-10">
+              {comment.replies.map((reply, index) => {
+                const isLast = index === comment.replies.length - 1
+                return (
+                  <div key={reply.id} className={cn('relative', !isLast && 'pb-2')}>
+                    {!isLast
+                      ? <div className="pointer-events-none absolute -left-6 top-0 bottom-0 w-0.5 rounded-full bg-gray-200" />
+                      : <div className="pointer-events-none absolute -left-6 top-0 h-1.5 w-0.5 rounded-full bg-gray-200" />}
+                    <div className="relative pl-3">
+                      <div className="pointer-events-none absolute -left-6 top-1.5 h-2.5 w-9 rounded-bl-[10px] border-b-2 border-gray-200" />
+                      <CommentCard comment={reply} postId={postId} onRefresh={onRefresh} depth={depth + 1} currentUid={currentUid} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="mt-0.5">
+              {comment.replies.map((reply) => (
+                <div key={reply.id} className="mb-2">
+                  <CommentCard comment={reply} postId={postId} onRefresh={onRefresh} depth={depth + 1} currentUid={currentUid} />
+                </div>
+              ))}
+            </div>
+          )
+        )}
+      </div>
+    )
+  }
+
   return (
     <div>
       {/* ── flex row: [left 32px col] [right flex-1 col] ── */}
@@ -146,7 +264,18 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
         <div className="flex w-8 flex-shrink-0 flex-col items-center">
           {/* Avatar */}
           <div className="flex-shrink-0">
-            {comment.photoURL && !comment.isAnonymous ? (
+            {comment.uid && !comment.isAnonymous ? (
+              <Link href={`/u/${comment.uid}`} onClick={(e) => e.stopPropagation()}>
+                {comment.photoURL ? (
+                  <img src={comment.photoURL} alt={authorDisplay}
+                    className="h-8 w-8 rounded-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-[10px] font-bold text-primary">
+                    {initials}
+                  </span>
+                )}
+              </Link>
+            ) : comment.photoURL && !comment.isAnonymous ? (
               <img src={comment.photoURL} alt={authorDisplay}
                 className="h-8 w-8 rounded-full object-cover" referrerPolicy="no-referrer" />
             ) : (
@@ -183,9 +312,18 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
         {/* RIGHT column */}
         <div className="min-w-0 flex-1 pb-1">
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="text-[13px] font-bold text-gray-900">{authorDisplay}</span>
+            {comment.uid && !comment.isAnonymous ? (
+              <UserHoverCard uid={comment.uid}>
+                <span className="text-[13px] font-bold text-gray-900">{authorDisplay}</span>
+              </UserHoverCard>
+            ) : (
+              <span className="text-[13px] font-bold text-gray-900">{authorDisplay}</span>
+            )}
             <span className="text-[10px] text-gray-300">•</span>
             <time className="text-[12px] text-gray-400">{timeAgo(comment.createdAt)}</time>
+            {comment.isEdited && (
+              <span className="text-[11px] text-gray-400 italic">(đã chỉnh sửa)</span>
+            )}
           </div>
 
           {collapsed ? (
@@ -193,6 +331,24 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
               className="mt-0.5 text-[12px] text-gray-400 hover:text-gray-600 transition-colors">
               {comment.replies.length} trả lời bị ẩn — nhấn để mở
             </button>
+          ) : editing ? (
+            <form onSubmit={submitEdit} className="mt-1 mb-2">
+              <textarea rows={3} value={editContent} onChange={(e) => setEditContent(e.target.value)}
+                className="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-[13px] outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition-all"
+                autoFocus
+              />
+              <div className="mt-1.5 flex justify-end gap-2">
+                <button type="button" onClick={() => { setEditing(false); setEditContent(comment.content) }}
+                  className="rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+                  Huỷ
+                </button>
+                <button type="submit" disabled={editSubmitting || !editContent.trim()}
+                  className="flex items-center gap-1.5 rounded-full bg-gray-900 px-4 py-1.5 text-xs font-semibold text-white hover:bg-gray-700 disabled:opacity-50 transition-colors">
+                  {editSubmitting && <Loader2 size={11} className="animate-spin" />}
+                  Lưu
+                </button>
+              </div>
+            </form>
           ) : (
             <>
               <p className="mb-2 mt-1 whitespace-pre-wrap text-[14px] leading-relaxed text-gray-800">
@@ -240,6 +396,30 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
                   </svg>
                   Share
                 </button>
+
+                {/* ── Owner menu ── */}
+                {isOwner && (
+                  <div ref={menuRef} className="relative ml-auto">
+                    <button onClick={() => setShowMenu((v) => !v)}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
+                      <MoreHorizontal size={15} />
+                    </button>
+                    {showMenu && (
+                      <div className="absolute right-0 top-8 z-20 min-w-[140px] rounded-xl border border-gray-100 bg-white py-1 shadow-lg">
+                        <button onClick={() => { setShowMenu(false); setEditing(true); setEditContent(comment.content) }}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 transition-colors">
+                          <Pencil size={13} className="text-gray-400" />
+                          Chỉnh sửa
+                        </button>
+                        <button onClick={() => { setShowMenu(false); setDeleteDialogOpen(true) }}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-[13px] text-red-500 hover:bg-red-50 transition-colors">
+                          <Trash2 size={13} />
+                          Xoá
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {showReply && (
@@ -266,7 +446,7 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
                   )}
                   <div className="relative pl-3">
                     <div className="pointer-events-none absolute -left-6 top-1.5 h-2.5 w-9 rounded-bl-[10px] border-b-2 border-gray-200" />
-                    <CommentCard comment={reply} postId={postId} onRefresh={onRefresh} depth={depth + 1} />
+                    <CommentCard comment={reply} postId={postId} onRefresh={onRefresh} depth={depth + 1} currentUid={currentUid} />
                   </div>
                 </div>
               )
@@ -280,12 +460,25 @@ function CommentCard({ comment, postId, onRefresh, depth = 0, replyToName }: {
                   comment={reply} postId={postId} onRefresh={onRefresh}
                   depth={depth + 1}
                   replyToName={comment.isAnonymous ? 'Ẩn danh' : comment.author}
+                  currentUid={currentUid}
                 />
               </div>
             ))}
           </div>
         )
       )}
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Xoá bình luận?"
+        message="Bình luận sẽ không còn hiển thị và không thể khôi phục."
+        confirmLabel="Xoá"
+        cancelLabel="Huỷ"
+        destructive
+        loading={deleteLoading}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
     </div>
   )
 }
@@ -457,7 +650,7 @@ export function CommentSection({ postId }: { postId: string }) {
         <>
           <div className="space-y-4">
             {tree.map((comment) => (
-              <CommentCard key={comment.id} comment={comment} postId={postId} onRefresh={refreshAll} />
+              <CommentCard key={comment.id} comment={comment} postId={postId} onRefresh={refreshAll} currentUid={user?.uid ?? null} />
             ))}
           </div>
 

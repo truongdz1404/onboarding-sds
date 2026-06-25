@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, ShieldCheck } from 'lucide-react'
 import { PostCard } from './post-card'
+import { ConfirmDialog } from './confirm-dialog'
 import type { DiscussionPost } from '@/lib/discussion-types'
 import { cn } from '@/lib/utils'
 
@@ -30,6 +31,7 @@ export function ModerationView() {
   const [hasMore, setHasMore]       = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [unhideConfirmPostId, setUnhideConfirmPostId] = useState<string | null>(null)
 
   const fetchPosts = useCallback(async (targetPage: number, append: boolean) => {
     if (!append) setLoading(true)
@@ -57,6 +59,20 @@ export function ModerationView() {
   useEffect(() => {
     fetchPosts(0, false)
   }, [fetchPosts])
+
+  async function handleUnhide() {
+    if (!unhideConfirmPostId) return
+    setActionLoading(unhideConfirmPostId)
+    try {
+      const res = await unhidePost(unhideConfirmPostId)
+      if (res.ok) {
+        setUnhideConfirmPostId(null)
+        setPosts((prev) => prev.filter((p) => p.id !== unhideConfirmPostId))
+      }
+    } finally {
+      setActionLoading(null)
+    }
+  }
 
   async function handleModerate(postId: string, status: 'approved' | 'rejected') {
     setActionLoading(postId)
@@ -144,13 +160,7 @@ export function ModerationView() {
                   userVote={post.userVote ?? null}
                   extraAction={tab === 'hidden' ? (
                     <button
-                      onClick={async (e) => {
-                        e.stopPropagation()
-                        setActionLoading(post.id)
-                        const res = await unhidePost(post.id)
-                        if (res.ok) setPosts((prev) => prev.filter((p) => p.id !== post.id))
-                        setActionLoading(null)
-                      }}
+                      onClick={(e) => { e.stopPropagation(); setUnhideConfirmPostId(post.id) }}
                       disabled={actionLoading === post.id}
                       className="flex items-center gap-1.5 rounded-full bg-green-50 px-4 py-1.5 text-xs font-semibold text-green-700 border border-green-200 hover:bg-green-100 transition-colors disabled:opacity-50"
                     >
@@ -219,6 +229,17 @@ export function ModerationView() {
           )}
         </>
       )}
+
+      <ConfirmDialog
+        open={!!unhideConfirmPostId}
+        title="Hiển thị lại bài viết?"
+        message="Bài viết sẽ được khôi phục và hiển thị lại trên diễn đàn."
+        confirmLabel="Hiển thị lại"
+        cancelLabel="Huỷ"
+        loading={actionLoading === unhideConfirmPostId}
+        onConfirm={handleUnhide}
+        onCancel={() => setUnhideConfirmPostId(null)}
+      />
     </div>
   )
 }
