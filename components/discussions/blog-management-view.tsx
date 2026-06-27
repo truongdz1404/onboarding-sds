@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Loader2, Plus, Pencil, Trash2, ArrowLeft, Upload, X, Eye, ChevronUp, ChevronDown, ImagePlus, List } from 'lucide-react'
+import { Loader2, Plus, Pencil, Trash2, ArrowLeft, Upload, X, Eye, ChevronUp, ChevronDown, ImagePlus, List, FileText } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { CATEGORIES, POSTS } from '@/lib/blog-data'
 import type { BlogPostDetail, BlogSection, Post } from '@/lib/blog-data'
@@ -82,8 +82,8 @@ function ImageUpload({ value, onChange, label }: {
     <div className="space-y-2">
       <Label>{label}</Label>
       {value ? (
-        <div className="relative overflow-hidden rounded-lg border border-input">
-          <img src={value} alt="" className="max-h-52 w-full object-cover" />
+        <div className="relative flex justify-center rounded-lg border border-input bg-muted/30 p-1">
+          <img src={value} alt="" className="max-h-52 max-w-full rounded-md object-contain" />
           <Button
             type="button" variant="destructive" size="icon-sm"
             onClick={() => onChange('')}
@@ -233,8 +233,8 @@ function SectionEditor({ section, index, total, onChange, onRemove, onMove }: {
 
         {/* Image — collapsed when empty */}
         {hasImage ? (
-          <div className="relative overflow-hidden rounded-lg border border-input">
-            <img src={section.image} alt="" className="max-h-40 w-full object-cover" />
+          <div className="relative flex justify-center rounded-lg border border-input bg-muted/30 p-1">
+            <img src={section.image} alt="" className="max-h-40 max-w-full rounded-md object-contain" />
             <Button
               type="button" variant="destructive" size="icon-sm"
               className="absolute right-2 top-2 opacity-90"
@@ -472,43 +472,52 @@ export function BlogManagementView() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {posts.map(post => (
-              <Card key={post.slug} className="overflow-hidden">
-                <CardContent className="flex items-center gap-4 py-0 px-0">
-                  {post.coverImage && (
-                    <img src={post.coverImage} alt="" className="h-20 w-28 shrink-0 object-cover" />
-                  )}
-                  <div className={`flex flex-1 items-center gap-4 py-3 ${post.coverImage ? '' : 'px-4'}`}>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">{post.category}</Badge>
-                        <span className="text-xs text-muted-foreground">{post.publishedAt}</span>
+              <Card key={post.slug}>
+                <CardContent className="flex items-center gap-4 p-3">
+                  {/* Thumbnail — always shown */}
+                  <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+                    {post.coverImage ? (
+                      <img src={post.coverImage} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <FileText className="size-5 text-muted-foreground/30" strokeWidth={1.5} />
                       </div>
-                      <p className="mt-1 truncate font-semibold text-sm">{post.title}</p>
-                      <p className="truncate text-xs text-muted-foreground">{post.excerpt}</p>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">{post.category}</Badge>
+                      <span className="text-xs text-muted-foreground">{post.publishedAt}</span>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <a
-                        href={`/blog/${post.slug}`} target="_blank"
-                        className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        title="Xem bài"
-                      >
-                        <Eye className="size-4" />
-                      </a>
-                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(post)} title="Chỉnh sửa">
-                        <Pencil />
-                      </Button>
-                      <Button
-                        variant="ghost" size="icon-sm"
-                        onClick={() => handleDelete(post.slug)}
-                        disabled={deletingSlug === post.slug}
-                        className="text-destructive hover:text-destructive"
-                        title="Xoá"
-                      >
-                        {deletingSlug === post.slug ? <Loader2 className="animate-spin" /> : <Trash2 />}
-                      </Button>
-                    </div>
+                    <p className="mt-1 truncate text-sm font-semibold">{post.title}</p>
+                    <p className="truncate text-xs text-muted-foreground">{post.excerpt}</p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex shrink-0 items-center gap-0.5">
+                    <a
+                      href={`/blog/${post.slug}`} target="_blank"
+                      className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      title="Xem bài"
+                    >
+                      <Eye className="size-4" />
+                    </a>
+                    <Button variant="ghost" size="icon-sm" onClick={() => openEdit(post)} title="Chỉnh sửa">
+                      <Pencil />
+                    </Button>
+                    <Button
+                      variant="ghost" size="icon-sm"
+                      onClick={() => handleDelete(post.slug)}
+                      disabled={deletingSlug === post.slug}
+                      className="text-destructive hover:text-destructive"
+                      title="Xoá"
+                    >
+                      {deletingSlug === post.slug ? <Loader2 className="animate-spin" /> : <Trash2 />}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

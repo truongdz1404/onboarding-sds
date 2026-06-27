@@ -141,8 +141,8 @@ export default async function BlogDetailPage({
                     ))}
                   </div>
                   {section.image && (
-                    <div className="mt-5 overflow-hidden rounded-xl">
-                      <img src={section.image} alt={section.heading} className="w-full object-cover" />
+                    <div className="mt-5 flex justify-center">
+                      <img src={section.image} alt={section.heading} className="max-h-160 max-w-full rounded-xl object-contain" />
                     </div>
                   )}
                   {section.bullets ? (
