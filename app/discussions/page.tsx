@@ -11,6 +11,7 @@ import { UserManagementView } from '@/components/discussions/user-management-vie
 import { TopicManagementView } from '@/components/discussions/topic-management-view'
 import { RecentCommentsView } from '@/components/discussions/recent-comments-view'
 import { SearchView } from '@/components/discussions/search-view'
+import { BlogManagementView } from '@/components/discussions/blog-management-view'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 import type { DiscussionPost } from '@/lib/discussion-types'
@@ -40,7 +41,7 @@ function DiscussionsContent() {
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   const viewParam = searchParams.get('view') as DiscussionView | null
-  const VALID_VIEWS: DiscussionView[] = ['posts', 'recent-comments', 'search', 'moderation', 'user-management', 'topic-management']
+  const VALID_VIEWS: DiscussionView[] = ['posts', 'recent-comments', 'search', 'moderation', 'user-management', 'topic-management', 'blog-management']
   const [activeView, setActiveView]   = useState<DiscussionView>(
     VALID_VIEWS.includes(viewParam as DiscussionView) ? (viewParam as DiscussionView) : 'posts'
   )
@@ -136,6 +137,9 @@ function DiscussionsContent() {
 
             {/* ── Topic management view ── */}
             {activeView === 'topic-management' && <TopicManagementView />}
+
+            {/* ── Blog management view ── */}
+            {activeView === 'blog-management' && <BlogManagementView />}
 
             {/* ── Main posts content ── */}
             {activeView === 'posts' && (

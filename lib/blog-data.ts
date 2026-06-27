@@ -7,12 +7,14 @@ export type Post = {
   views: string
   accent: string
   badge: string
+  coverImage?: string
 }
 
 export type BlogSection = {
   heading: string
   body: string[]
   bullets?: string[]
+  image?: string
 }
 
 export type BlogPostDetail = Post & {
@@ -26,6 +28,7 @@ export type BlogPostDetail = Post & {
   sections: BlogSection[]
   checklist: string[]
   relatedSlugs: string[]
+  coverImage?: string
 }
 
 export const CATEGORIES = [

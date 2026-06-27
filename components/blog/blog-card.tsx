@@ -5,7 +5,9 @@ import { Clock, Eye, FileText } from 'lucide-react'
 import Link from 'next/link'
 import type { Post } from '@/lib/blog-data'
 
-export function BlogCard({ post, index }: { post: Post; index: number }) {
+export function BlogCard({ post, index, viewCount }: { post: Post; index: number; viewCount?: number }) {
+  const views = viewCount && viewCount > 0 ? viewCount : post.views
+
   return (
     <motion.div
       layout
@@ -18,13 +20,28 @@ export function BlogCard({ post, index }: { post: Post; index: number }) {
         href={`/blog/${post.slug}`}
         className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
       >
-        <div className="relative flex h-40 items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(232,96,26,0.06) 0%, rgba(244,148,74,0.10) 100%)' }}>
-          <FileText size={56} className="text-primary/20" strokeWidth={1.5} />
+        {/* Image / fallback — 16:9 */}
+        <div className="relative aspect-video w-full shrink-0 overflow-hidden">
+          {post.coverImage ? (
+            <img
+              src={post.coverImage}
+              alt={post.title}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div
+              className="flex h-full w-full items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, rgba(232,96,26,0.06) 0%, rgba(244,148,74,0.10) 100%)' }}
+            >
+              <FileText size={56} className="text-primary/20" strokeWidth={1.5} />
+            </div>
+          )}
           <span className="eyebrow absolute left-4 top-4 rounded-md bg-primary px-2.5 py-1 text-white">
             {post.category}
           </span>
         </div>
 
+        {/* Text content */}
         <div className="flex flex-1 flex-col p-6">
           <h3 className="line-clamp-2 text-lg font-bold leading-snug tracking-tight text-text-dark transition-colors group-hover:text-primary">
             {post.title}
@@ -37,7 +54,7 @@ export function BlogCard({ post, index }: { post: Post; index: number }) {
               <Clock size={14} /> {post.readTime}
             </span>
             <span className="flex items-center gap-1.5">
-              <Eye size={14} /> {post.views}
+              <Eye size={14} /> {views}
             </span>
           </div>
         </div>

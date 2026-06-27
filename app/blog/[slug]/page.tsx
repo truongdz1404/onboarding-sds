@@ -12,6 +12,12 @@ async function getBlogPost(slug: string): Promise<BlogPostDetail | undefined> {
   return getStaticBlogDetail(slug)
 }
 
+async function incrementViews(slug: string): Promise<number> {
+  const viewsRef = db.ref(`blogPosts/${slug}/viewCount`)
+  const result = await viewsRef.transaction((current) => (Number(current) || 0) + 1)
+  return (result.snapshot.val() as number) ?? 1
+}
+
 function formatDate(date: string) {
   return new Intl.DateTimeFormat('vi-VN', {
     day: '2-digit',
@@ -29,6 +35,8 @@ export default async function BlogDetailPage({
   const post = await getBlogPost(slug)
 
   if (!post) notFound()
+
+  const views = await incrementViews(slug)
 
   const relatedPosts = post.relatedSlugs
     .map((relatedSlug) => getStaticBlogDetail(relatedSlug))
@@ -56,6 +64,12 @@ export default async function BlogDetailPage({
             </span>
           </div>
 
+          {post.coverImage && (
+            <div className="mt-6 overflow-hidden rounded-2xl">
+              <img src={post.coverImage} alt={post.title} className="w-full max-h-72 object-cover" />
+            </div>
+          )}
+
           <h1 className="mt-5 max-w-4xl text-balance font-extrabold text-4xl leading-tight text-text-dark md:text-6xl">
             {post.title}
           </h1>
@@ -78,7 +92,7 @@ export default async function BlogDetailPage({
             </span>
             <span className="inline-flex items-center gap-2">
               <Eye size={16} className="text-primary" />
-              {post.views} lượt xem
+              {views} lượt xem
             </span>
           </div>
         </div>
@@ -126,6 +140,11 @@ export default async function BlogDetailPage({
                       <p key={paragraph}>{paragraph}</p>
                     ))}
                   </div>
+                  {section.image && (
+                    <div className="mt-5 overflow-hidden rounded-xl">
+                      <img src={section.image} alt={section.heading} className="w-full object-cover" />
+                    </div>
+                  )}
                   {section.bullets ? (
                     <ul className="mt-5 grid gap-3">
                       {section.bullets.map((bullet) => (

@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 476" font-family="'Segoe UI', system-ui, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 8 3.5, 0 7" fill="#6B7280"/>
+    </marker>
+    <marker id="ao" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 8 3.5, 0 7" fill="#EA580C"/>
+    </marker>
+    <marker id="ab" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 8 3.5, 0 7" fill="#3B82F6"/>
+    </marker>
+    <marker id="ad" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 8 3.5, 0 7" fill="#374151"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas background -->
+  <rect width="920" height="476" fill="#E8EDF4" rx="10"/>
+
+  <!-- ═══ OUTER CONTAINER ═══ -->
+  <rect x="8" y="8" width="904" height="460" fill="white" stroke="#1a2744" stroke-width="2.5" rx="8"/>
+  <text x="22" y="36" font-size="14" font-weight="700" fill="#1a2744">Forum System Architecture</text>
+
+  <!-- ════════════════════════════════════
+       FIREBASE AUTH  (top center)
+       ════════════════════════════════════ -->
+  <rect x="316" y="14" width="248" height="48" fill="#FFF7ED" stroke="#F97316" stroke-width="1.5" rx="8"/>
+  <circle cx="340" cy="38" r="14" fill="#F97316"/>
+  <text x="340" y="43" font-size="13" font-weight="800" fill="white" text-anchor="middle">F</text>
+  <text x="474" y="33" font-size="12" font-weight="700" fill="#C2410C" text-anchor="middle">Firebase Authentication</text>
+  <text x="474" y="51" font-size="10" fill="#EA580C" text-anchor="middle">Google OAuth 2.0</text>
+
+  <!-- HTTPS ↕ arrows -->
+  <line x1="462" y1="62" x2="462" y2="80" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#a)"/>
+  <line x1="474" y1="80" x2="474" y2="62" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#a)"/>
+  <text x="488" y="74" font-size="9" fill="#6B7280">HTTPS</text>
+
+  <!-- ════════════════════════════════════
+       NEXT.JS SECTION
+       x=10, y=82, w=582, h=280 → right=592
+       ════════════════════════════════════ -->
+  <rect x="10" y="82" width="582" height="280" fill="#F8FAFC" stroke="#374151" stroke-width="1.5" rx="8"/>
+  <text x="24" y="101" font-size="11" font-weight="700" fill="#374151">Next.js Application</text>
+  <!-- NEXT.JS badge -->
+  <rect x="514" y="85" width="70" height="22" fill="#111827" rx="5"/>
+  <text x="549" y="100" font-size="10" font-weight="800" fill="white" text-anchor="middle">NEXT.JS</text>
+
+  <!-- Client box: x=20, y=108, w=178, h=230 -->
+  <rect x="20" y="108" width="178" height="230" fill="white" stroke="#6B7280" stroke-width="1.5" rx="6"/>
+  <text x="109" y="228" font-size="20" font-weight="700" fill="#111827" text-anchor="middle">Client</text>
+
+  <!-- API box: x=214, y=108, w=370, h=230 -->
+  <rect x="214" y="108" width="370" height="230" fill="white" stroke="#6B7280" stroke-width="1.5" rx="6"/>
+  <text x="399" y="228" font-size="20" font-weight="700" fill="#111827" text-anchor="middle">API</text>
+
+  <!-- ↔ Client ↔ API arrows with "Rest API" label -->
+  <line x1="198" y1="219" x2="213" y2="219" stroke="#374151" stroke-width="2" marker-end="url(#ad)"/>
+  <line x1="214" y1="229" x2="199" y2="229" stroke="#374151" stroke-width="2" marker-end="url(#ad)"/>
+  <text x="206" y="215" font-size="8" fill="#374151" text-anchor="middle">Rest</text>
+  <text x="206" y="236" font-size="8" fill="#374151" text-anchor="middle">API</text>
+
+  <!-- Vercel badge bottom-left -->
+  <rect x="20" y="322" width="84" height="22" fill="#111827" rx="5"/>
+  <text x="62" y="337" font-size="10" font-weight="700" fill="white" text-anchor="middle">▲  Vercel</text>
+
+  <!-- ════════════════════════════════════
+       FIREBASE SECTION
+       x=608, y=82, w=296, h=280 → right=904
+       ════════════════════════════════════ -->
+  <rect x="608" y="82" width="296" height="280" fill="#FFF7ED" stroke="#F97316" stroke-width="1.5" rx="8"/>
+  <text x="756" y="101" font-size="11" font-weight="700" fill="#C2410C" text-anchor="middle">Firebase Platform</text>
+  <circle cx="732" cy="95" r="10" fill="#F97316"/>
+  <text x="732" y="99" font-size="9" font-weight="800" fill="white" text-anchor="middle">F</text>
+
+  <!-- Realtime Database box: x=618, y=108, w=276, h=230 -->
+  <rect x="618" y="108" width="276" height="230" fill="white" stroke="#F97316" stroke-width="1.5" rx="6"/>
+  <text x="756" y="221" font-size="17" font-weight="700" fill="#C2410C" text-anchor="middle">Realtime</text>
+  <text x="756" y="244" font-size="17" font-weight="700" fill="#C2410C" text-anchor="middle">Database</text>
+
+  <!-- ════════════════════════════════════
+       ARROWS
+       ════════════════════════════════════ -->
+
+  <!-- API → Firebase (horizontal at y=224) -->
+  <line x1="584" y1="218" x2="607" y2="218" stroke="#EA580C" stroke-width="2" stroke-dasharray="5,2" marker-end="url(#ao)"/>
+  <line x1="608" y1="230" x2="585" y2="230" stroke="#EA580C" stroke-width="2" stroke-dasharray="5,2" marker-end="url(#ao)"/>
+  <text x="596" y="214" font-size="7.5" fill="#EA580C" text-anchor="middle">Admin</text>
+  <text x="596" y="235" font-size="7.5" fill="#EA580C" text-anchor="middle">SDK</text>
+
+  <!-- Next.js section → Bottom strip (vertical from center API, x=399, y=362 → y=378) -->
+  <line x1="399" y1="362" x2="399" y2="376" stroke="#3B82F6" stroke-width="2" stroke-dasharray="5,2" marker-end="url(#ab)"/>
+  <text x="434" y="371" font-size="8" fill="#3B82F6">Rest API</text>
+
+  <!-- Firebase → Bottom strip -->
+  <line x1="756" y1="362" x2="756" y2="376" stroke="#EA580C" stroke-width="1.5" stroke-dasharray="5,2" marker-end="url(#ao)"/>
+
+  <!-- ════════════════════════════════════
+       BOTTOM STRIP: External Services
+       x=10, y=376, w=892, h=78
+       ════════════════════════════════════ -->
+  <rect x="10" y="376" width="892" height="78" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1.5" rx="8"/>
+
+  <!-- Google Gemini -->
+  <rect x="24" y="386" width="190" height="58" fill="white" stroke="#BFDBFE" stroke-width="1" rx="6"/>
+  <circle cx="48" cy="415" r="14" fill="#4285F4"/>
+  <text x="48" y="420" font-size="12" font-weight="800" fill="white" text-anchor="middle">G</text>
+  <text x="127" y="409" font-size="10" font-weight="700" fill="#1D4ED8" text-anchor="middle">Google Gemini</text>
+  <text x="127" y="424" font-size="9" fill="#2563EB" text-anchor="middle">2.5 Flash · AI Chat</text>
+  <text x="127" y="437" font-size="8" fill="#6B7280" text-anchor="middle">Vercel AI SDK</text>
+
+  <!-- Vercel Analytics -->
+  <rect x="226" y="386" width="190" height="58" fill="white" stroke="#BFDBFE" stroke-width="1" rx="6"/>
+  <rect x="244" y="401" width="20" height="20" fill="#000" rx="3"/>
+  <text x="254" y="415" font-size="11" font-weight="800" fill="white" text-anchor="middle">▲</text>
+  <text x="335" y="409" font-size="10" font-weight="700" fill="#1D4ED8" text-anchor="middle">Vercel Analytics</text>
+  <text x="335" y="424" font-size="9" fill="#2563EB" text-anchor="middle">Web Analytics</text>
+  <text x="335" y="437" font-size="8" fill="#6B7280" text-anchor="middle">Performance</text>
+
+  <!-- TipTap -->
+  <rect x="428" y="386" width="190" height="58" fill="white" stroke="#BFDBFE" stroke-width="1" rx="6"/>
+  <rect x="446" y="401" width="20" height="20" fill="#7C3AED" rx="3"/>
+  <text x="456" y="415" font-size="8" font-weight="800" fill="white" text-anchor="middle">TT</text>
+  <text x="537" y="409" font-size="10" font-weight="700" fill="#1D4ED8" text-anchor="middle">TipTap Editor</text>
+  <text x="537" y="424" font-size="9" fill="#2563EB" text-anchor="middle">Rich Text / WYSIWYG</text>
+  <text x="537" y="437" font-size="8" fill="#6B7280" text-anchor="middle">Soạn thảo bài viết</text>
+
+  <!-- Motion + Sonner -->
+  <rect x="630" y="386" width="190" height="58" fill="white" stroke="#BFDBFE" stroke-width="1" rx="6"/>
+  <rect x="648" y="401" width="20" height="20" fill="#F59E0B" rx="3"/>
+  <text x="658" y="415" font-size="7" font-weight="800" fill="white" text-anchor="middle">Mo</text>
+  <text x="739" y="409" font-size="10" font-weight="700" fill="#1D4ED8" text-anchor="middle">Motion + Sonner</text>
+  <text x="739" y="424" font-size="9" fill="#2563EB" text-anchor="middle">Animation · Toasts</text>
+  <text x="739" y="437" font-size="8" fill="#6B7280" text-anchor="middle">UI feedback</text>
+
+</svg>
