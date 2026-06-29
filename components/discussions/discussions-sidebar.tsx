@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { UserRole } from '@/lib/profile-types'
 import type { DiscussionTopic } from '@/lib/discussion-types'
@@ -115,6 +116,23 @@ export function DiscussionsSidebar({
           </svg>
           Đăng bài mới
         </button>
+      </div>
+
+      {/* ── SDS Pray banner ── */}
+      <div className="mt-4 mx-1">
+        <Link
+          href="/pray"
+          className="flex items-center gap-3 rounded-xl px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 hover:border-orange-400 hover:shadow-[0_4px_14px_rgba(249,115,22,0.12)] transition-all group"
+        >
+          <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🌸</span>
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-orange-700 leading-tight">SDS Pray</p>
+            <p className="text-[11px] text-orange-500/80 truncate">Góc tâm linh • Cầu nguyện</p>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="size-4 text-orange-400 ml-auto shrink-0 group-hover:translate-x-0.5 transition-transform">
+            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 18l6-6-6-6" />
+          </svg>
+        </Link>
       </div>
 
       {/* ── Topic Forums ── */}

@@ -274,3 +274,65 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ── SDS Pray animations ── */
+@keyframes incense-rise-clear {
+  0% { transform: translateY(0) scale(0.6) translateX(0); opacity: 0; filter: blur(1.5px); }
+  12% { opacity: 0.85; filter: blur(2.5px); }
+  45% { transform: translateY(-45px) scale(1.4) translateX(12px); opacity: 0.65; filter: blur(4.5px); }
+  75% { transform: translateY(-85px) scale(2.4) translateX(-18px); opacity: 0.4; filter: blur(8px); }
+  105% { transform: translateY(-135px) scale(3.5) translateX(10px); opacity: 0; filter: blur(14px); }
+}
+.animate-incense-smoke-clear { animation: incense-rise-clear 6.5s cubic-bezier(0.33, 1, 0.68, 1) infinite; }
+
+@keyframes first-person-hands {
+  0% { transform: translateY(240px) scale(0.75); opacity: 0; }
+  18% { transform: translateY(15px) scale(1.05); opacity: 0.95; }
+  42% { transform: translateY(5px) scale(1) rotate(-4deg); opacity: 1; }
+  58% { transform: translateY(-28px) scale(1.08) rotate(4deg); opacity: 1; }
+  78% { transform: translateY(15px) scale(0.95) rotate(0deg); opacity: 0.9; }
+  100% { transform: translateY(240px) scale(0.75); opacity: 0; }
+}
+.animate-first-person-hands { animation: first-person-hands 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+@keyframes altar-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+.animate-altar-item { animation: altar-float 4s ease-in-out infinite; }
+
+@keyframes first-person-bow {
+  0% { transform: rotateX(0deg) translateY(0px) scale(1); filter: brightness(1); }
+  40% { transform: rotateX(-8deg) translateY(60px) scale(0.96); filter: brightness(0.65) contrast(1.1); }
+  55% { transform: rotateX(-10deg) translateY(85px) scale(0.94); filter: brightness(0.55); }
+  100% { transform: rotateX(0deg) translateY(0px) scale(1); filter: brightness(1); }
+}
+.animate-first-person-bow { animation: first-person-bow 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+@keyframes beautiful-flower-fall {
+  0% { transform: translateY(-50px) rotate(0deg) translateX(0); opacity: 0; }
+  12% { opacity: 1; }
+  90% { opacity: 0.95; }
+  100% { transform: translateY(640px) rotate(320deg) translateX(45px); opacity: 0; }
+}
+.animate-flower-fall { animation: beautiful-flower-fall 6.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+@keyframes flame-wiggle {
+  0%, 100% { transform: skewX(-2deg) scale(1); filter: brightness(1.1); }
+  50% { transform: skewX(2deg) scale(1.05); filter: brightness(0.95); }
+}
+.candle-flame-wiggle { animation: flame-wiggle 1.2s ease-in-out infinite; transform-origin: bottom center; }
+
+@keyframes candle-flicker {
+  0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 4px rgba(255,166,0,0.6)); }
+  25% { opacity: 0.95; filter: drop-shadow(0 0 10px rgba(255,190,50,0.85)); }
+  50% { opacity: 0.8; filter: drop-shadow(0 0 6px rgba(255,150,0,0.5)); }
+  75% { opacity: 1; filter: drop-shadow(0 0 12px rgba(255,200,80,0.95)); }
+}
+.flicker-candles { animation: candle-flicker 2s infinite alternate; }
+
+@keyframes soft-altar-breathe {
+  0%, 100% { transform: scale(1) translateY(0); box-shadow: 0 10px 25px -5px rgba(245,158,11,0.08), 0 8px 10px -6px rgba(245,158,11,0.08); }
+  50% { transform: scale(1.008) translateY(-3px); box-shadow: 0 20px 35px -5px rgba(245,158,11,0.16), 0 12px 16px -6px rgba(245,158,11,0.16); }
+}
+.animate-altar-breathe { animation: soft-altar-breathe 6s ease-in-out infinite; }
