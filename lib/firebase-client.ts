@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 
 const config = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,6 +15,7 @@ const app = getApps()[0] ?? initializeApp(config)
 
 export const auth = getAuth(app)
 export const googleProvider = new GoogleAuthProvider()
+export const db = getFirestore(app)
 
 /** signInWithPopup but with the popup window centered on screen */
 export async function signInWithGoogleCentered() {
